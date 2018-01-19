@@ -1,0 +1,6 @@
+deps
+build
+build-wasm
+dist
+csound-emscripten-*
+csound-wasm-*
