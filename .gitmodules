@@ -1,3 +1,6 @@
 [submodule "dependencies/csound"]
 	path = dependencies/csound
 	url = https://github.com/csound/csound.git
+[submodule "dependencies/csound-extended"]
+	path = dependencies/csound-extended
+	url = https://github.com/gogins/csound-extended.git
