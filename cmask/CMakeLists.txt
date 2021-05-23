@@ -31,7 +31,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-std=c++11")
 set(CMAKE_C_COMPILER "emcc")
 set(CMAKE_CXX_COMPILER "em++")
-set(CMASK_SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/cmask/source")
+set(CMASK_SOURCE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/cmask/source")
 add_executable(cmask cmask_library.cpp 
 ${CMASK_SOURCE_DIRECTORY}/cmask.cpp 
 ${CMASK_SOURCE_DIRECTORY}/event.cpp 

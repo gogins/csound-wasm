@@ -4,9 +4,9 @@ project(csound-extended)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS -frtti)
-set(CPPSOUND_SOURCE_DIRECTORY "../dependencies/csound/interfaces")
-set(CSOUND_INCLUDE_DIRECTORY "../dependencies/csound/include")
-set(EIGEN_INCLUDE_DIRECTORY "../dependencies")
+set(CPPSOUND_SOURCE_DIRECTORY "dependencies/csound/interfaces")
+set(CSOUND_INCLUDE_DIRECTORY "dependencies/csound/include")
+#set(EIGEN_INCLUDE_DIRECTORY "../dependencies")
 set(SNDFILE_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/deps/libsndfile-1.0.25/src")
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "Verbose makefile" FORCE)
 set(BUILD_PLUGINS_"plugins" CACHE DIR "plugins directory" FORCE)
@@ -38,10 +38,8 @@ set(LIBSNDFILE_LIBRARY
     "${CMAKE_SOURCE_DIR}/deps/lib/libFLAC++.a"
     "${CMAKE_SOURCE_DIR}/deps/lib/libvorbisenc.a"
     )
-
-add_subdirectory(cmask)
-
+add_subdirectory(../dependencies/cmask cmask)
 add_subdirectory(../dependencies/csound csound)
-
+add_subdirectory(../dependencies/CsoundAC CsoundAC)
 add_subdirectory(CsoundAC)
 
