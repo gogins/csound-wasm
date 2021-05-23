@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(csound-extended)
+project(csound-extended-wasm)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS -frtti)
@@ -38,8 +38,8 @@ set(LIBSNDFILE_LIBRARY
     "${CMAKE_SOURCE_DIR}/deps/lib/libFLAC++.a"
     "${CMAKE_SOURCE_DIR}/deps/lib/libvorbisenc.a"
     )
-add_subdirectory(../dependencies/cmask cmask)
-add_subdirectory(../dependencies/csound csound)
-add_subdirectory(../dependencies/CsoundAC CsoundAC)
+add_subdirectory(dependencies/cmask cmask)
+add_subdirectory(dependencies/csound csound)
+add_subdirectory(dependencies/csound-extended CsoundAC)
 add_subdirectory(CsoundAC)
 

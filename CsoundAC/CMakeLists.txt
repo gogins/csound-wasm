@@ -30,11 +30,11 @@ project(CsoundAC)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_C_COMPILER "emcc")
 set(CMAKE_CXX_COMPILER "em++")
-set(CSOUNDAC_SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../CsoundAC")
-set(CPPSOUND_SOURCE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/csound/interfaces")
-set(CSOUND_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies/csound/include")
-set(EIGEN_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../../dependencies")
-set(SNDFILE_INCLUDE_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../deps/libsndfile-1.0.25/src")
+set(CSOUNDAC_SOURCE_DIRECTORY "${CMAKE_SOURCE_DIR}/CsoundAC")
+set(CPPSOUND_SOURCE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound/interfaces")
+set(CSOUND_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound/include")
+set(EIGEN_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies")
+set(SNDFILE_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/deps/libsndfile-1.0.25/src")
 # ${CSOUNDAC_SOURCE_DIRECTORY}/ImageToScore.cpp
 add_library(csoundac-static 
 ${CPPSOUND_SOURCE_DIRECTORY}/CppSound.cpp
