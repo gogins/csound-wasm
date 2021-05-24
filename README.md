@@ -55,4 +55,22 @@ https://gogins.github.io/csound-examples. For more information, see my
 
 ## Building
 
-See the main README.md of csound-extended for build instructions.
+You will need to make sure that the Eigen library for matrix algebra is 
+available to the Emscripten toolchain. The easiest way to do this is to 
+install the `libeigen3-dev` system package, and make it available to the 
+Emscripten toolchain. You can create symbolic link to do this, e.g.
+```
+/home/mkg/emsdk/upstream/emscripten/cache/sysroot/include/eigen3 -> /usr/include/eigen3
+```
+
+Similarly there is a problem with the `csound/include/float-version.h` file. 
+Copy `csoound/include/float-version.h.in` to `csound/include/float-version.h`, 
+and in that file, change 
+```
+#cmakedefine USE_DOUBLE
+```
+to
+```
+#define USE_DOUBLE
+```
+

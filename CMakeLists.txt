@@ -5,7 +5,7 @@ project(csound-extended)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS -frtti)
 set(CPPSOUND_SOURCE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound/interfaces")
-set(CSOUND_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound/include")
+set(CSOUND_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound/include;.")
 set(SNDFILE_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/deps/libsndfile-1.0.25/src")
 set(CMAKE_VERBOSE_MAKEFILE ON CACHE BOOL "Verbose makefile" FORCE)
 set(BUILD_PLUGINS_"plugins" CACHE DIR "plugins directory" FORCE)
@@ -37,8 +37,12 @@ set(LIBSNDFILE_LIBRARY
     "${CMAKE_SOURCE_DIR}/deps/lib/libFLAC++.a"
     "${CMAKE_SOURCE_DIR}/deps/lib/libvorbisenc.a"
     )
+# Overrides emscripten, that's OK because eigen3 is header file only.
 set(Eigen3_DIR "/usr/lib/cmake/eigen3/")
-add_subdirectory(${CMAKE_SOURCE_DIR}/dependencies/csound)
-add_subdirectory(${CMAKE_SOURCE_DIR}/cmask)
-add_subdirectory(${CMAKE_SOURCE_DIR}/CsoundAC)
+find_package(Eigen3 REQUIRED NO_MODULE)
+include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound-extended")
+add_subdirectory(dependencies/csound)
+add_subdirectory(cmask)
+add_subdirectory(CsoundAC)
 
