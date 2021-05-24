@@ -38,13 +38,12 @@ emmake make cmask csound-static csoundac-static -j6
 
 echo "Compiling csound_embind..."
 
-em++ ${CXX_FLAGS} ${EMCC_FLAGS} -iquote ../src -I../dependencies/csound/include -I../dependencies/csound/H -I../dependencies/csound/interfaces -I../deps/libsndfile-1.0.25/src -c ../src/csound_embind.cpp --bind -Iinclude -o csound_web_audio.bc
-
+em++ ${CXX_FLAGS} ${EMCC_FLAGS} -iquote ../src -I../dependencies/csound/include -I../dependencies/csound/H -I../dependencies/csound/interfaces -I../deps/libsndfile-1.0.25/src -c ../src/csound_embind.cpp --bind -Iinclude 
 echo "Compiling CsoundAudioProcessor..."
 
 # HRTF and SoundFont data embedded from directory csound/samples...
 
-em++ ${CXX_FLAGS} -O1 ${EMCC_FLAGS} --bind -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s RESERVED_FUNCTION_POINTERS=2 -s SINGLE_FILE=1 -s WASM_ASYNC_COMPILATION=0 --source-map-base . --embed-file ../dependencies/csound/samples/ --pre-js ../src/CsoundAudioProcessor_prejs.js --post-js ../src/CsoundAudioProcessor_postjs.js csound_web_audio.bc ./dependencies/csound/libcsound.a ../deps/lib/libsndfile.a ../deps/lib/libogg.a ../deps/lib/libvorbis.a ../deps/lib/libvorbisenc.a ../deps/lib/libFLAC.a -o CsoundAudioProcessor.js
+em++ ${CXX_FLAGS} -O1 ${EMCC_FLAGS} --bind -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' -s RESERVED_FUNCTION_POINTERS=2 -s SINGLE_FILE=1 -s WASM_ASYNC_COMPILATION=0 --source-map-base . --embed-file ../dependencies/csound/samples/ --pre-js ../src/CsoundAudioProcessor_prejs.js --post-js ../src/CsoundAudioProcessor_postjs.js csound_web_audio.o ./dependencies/csound/libcsound.a ../deps/lib/libsndfile.a ../deps/lib/libogg.a ../deps/lib/libvorbis.a ../deps/lib/libvorbisenc.a ../deps/lib/libFLAC.a -o CsoundAudioProcessor.js
 
 echo "Compiling CsoundAC..."
 
