@@ -36,7 +36,7 @@
   #error To use csound_webaudio.hpp you need at least a C++11 compliant compiler.
 #endif
 #endif
-
+#include "float-version.h"
 #include <csound.hpp>
 #include <cstdio>
 #include <deque>

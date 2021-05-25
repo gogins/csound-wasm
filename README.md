@@ -60,7 +60,7 @@ available to the Emscripten toolchain. The easiest way to do this is to
 install the `libeigen3-dev` system package, and make it available to the 
 Emscripten toolchain. You can create symbolic link to do this, e.g.
 ```
-/home/mkg/emsdk/upstream/emscripten/cache/sysroot/include/eigen3 -> /usr/include/eigen3
+ln -s /usr/include/eigen3 dependencies/eigen3  
 ```
 
 Similarly there is a problem with the `csound/include/float-version.h` file. 

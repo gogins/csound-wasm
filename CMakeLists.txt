@@ -4,6 +4,7 @@ project(csound-extended)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS -frtti)
+add_compile_definitions(USE_DOUBLE=0)
 set(CPPSOUND_SOURCE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound/interfaces")
 set(CSOUND_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound/include;.")
 set(SNDFILE_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/deps/libsndfile-1.0.25/src")
@@ -37,9 +38,8 @@ set(LIBSNDFILE_LIBRARY
     "${CMAKE_SOURCE_DIR}/deps/lib/libFLAC++.a"
     "${CMAKE_SOURCE_DIR}/deps/lib/libvorbisenc.a"
     )
-set(Eigen3_DIR "/usr/lib/cmake/eigen3/")
-find_package(Eigen3 REQUIRED NO_MODULE)
-include_directories(${EIGEN3_INCLUDE_DIR})
+# For Eigen.
+include_directories("${CMAKE_SOURCE_DIR}/dependencies")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound-extended")
 add_subdirectory(dependencies/csound)
