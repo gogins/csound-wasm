@@ -63,14 +63,39 @@ Emscripten toolchain. You can create symbolic link to do this, e.g.
 ln -s /usr/include/eigen3 dependencies/eigen3  
 ```
 
-Similarly there is a problem with the `csound/include/float-version.h` file. 
-Copy `csoound/include/float-version.h.in` to `csound/include/float-version.h`, 
-and in that file, change 
-```
-#cmakedefine USE_DOUBLE
-```
-to
-```
-#define USE_DOUBLE
-```
+For your first build, run...
+
+### `fresh-build-wasm.sh`
+
+This updates the Git submodules, updates the Emscripten toolchain, and then 
+calls... 
+
+### `clean-build-wasm.sh`
+
+This actives the latest Emscripten SDK and sets up the shell environment for 
+building, deletes any previous build directory, creates a clean build 
+directory, clears the Emscripten compiler cache, downloads libsndfile 
+dependencies and builds them, and then calls...
+
+### `build-wasm.sh`
+
+This does the actual build of WASM binaries for csound, cmask, and CsoundAC 
+with a mixture of CMake and build scripts, and then calls...
+
+### `release-wasm.sh`
+
+This marshals the release into the `dist-wasm` directory, and then zips up the 
+contents of `dist-wasm` into a release package in the form of a zip archive 
+that provides WebAssembly builds of Csound, CMask, and CsoundAC.
+
+## Testing
+
+Clone my https://github.com/gogins/csound-examples repository. Unzip the 
+`csound-extended-wasm.{version}.zip` file into the 
+`csound-examples/docs` directory, run the local webserver with `python2 http.py`, 
+got to `http://localhost:5103` in Firefox, and run the minimal.html, cmask.html, 
+and trichord_space.html examples.
+
+
+
 
