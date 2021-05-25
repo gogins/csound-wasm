@@ -37,10 +37,10 @@ set(LIBSNDFILE_LIBRARY
     "${CMAKE_SOURCE_DIR}/deps/lib/libFLAC++.a"
     "${CMAKE_SOURCE_DIR}/deps/lib/libvorbisenc.a"
     )
-# Overrides emscripten, that's OK because eigen3 is header file only.
 set(Eigen3_DIR "/usr/lib/cmake/eigen3/")
 find_package(Eigen3 REQUIRED NO_MODULE)
 include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound-extended")
 add_subdirectory(dependencies/csound)
 add_subdirectory(cmask)
