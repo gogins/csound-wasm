@@ -4,6 +4,20 @@ Edward Costello, Steven Yi, Henri Manson, Michael Gogins<br>
 https://github.com/gogins<br>
 http://michaelgogins.tumblr.com
 
+## Important Note
+
+In order for Csound to use audio, the microphone, and MIDI, the user must 
+grant these permissions for the site hosting Csound to the Web browser 
+(usually by right-clicking on the lock symbol to the left of the URL, or 
+on a permissions icon to the left of the URL).
+
+At this time, for reasons not yet known to me, the csound-extended-wasm build 
+of Csound does not always run in Google Chrome, even after granting 
+permissions. I have opened an issue to fix this.
+
+In the meantime, after granting permissions, everything works fine in 
+Firefox.
+
 ## Introduction
 
 THis directory builds and packages csound-extended for WebAssembly.

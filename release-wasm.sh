@@ -8,6 +8,7 @@ rm -rf $RELEASE_DIR
 mkdir $RELEASE_DIR
 #remove backup files ending with ~
 find . -name "*~" -exec rm {} \;
+cp README.md dist-wasm/
 cp src/*.js dist-wasm/
 cp src/httpd.py dist-wasm/
 cp src/minimal.html dist-wasm/
