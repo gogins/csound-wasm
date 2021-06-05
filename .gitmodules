@@ -4,3 +4,6 @@
 [submodule "dependencies/csound-extended"]
 	path = dependencies/csound-extended
 	url = https://github.com/gogins/csound-extended.git
+[submodule "dependencies/cmask"]
+	path = dependencies/cmask
+	url = https://github.com/gogins/cmask.git
