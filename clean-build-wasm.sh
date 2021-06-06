@@ -1,3 +1,4 @@
+#!/bin/bash
 clear
 echo "Clean build of Csound for WebAssembly..."
 export WEBASSEMBLY_HOME=`pwd`

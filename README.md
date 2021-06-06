@@ -69,12 +69,15 @@ https://gogins.github.io/csound-examples. For more information, see my
 
 ## Building
 
-You will need to make sure that the Eigen library for matrix algebra is 
-available to the Emscripten toolchain. The easiest way to do this is to 
-install the `libeigen3-dev` system package, and make it available to the 
-Emscripten toolchain. You can create symbolic link to do this, e.g.
+You will need to make sure that the boost header files and the Eigen library 
+for matrix algebra are available to the Emscripten toolchain. The easiest way 
+to do this is to install the `libeigen3-dev` and `libboost-dev` system 
+packages, and make them available to the Emscripten toolchain. As only header 
+files from these packages are used here, you can do this by creating symbolic 
+links, e.g.
 ```
 ln -s /usr/include/eigen3 dependencies/eigen3  
+ln -s /usr/include/boost dependencies/boost  
 ```
 
 For your first build, run...
