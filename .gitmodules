@@ -7,3 +7,6 @@
 [submodule "dependencies/cmask"]
 	path = dependencies/cmask
 	url = https://github.com/gogins/cmask.git
+[submodule "dependencies/csound-ac"]
+	path = dependencies/csound-ac
+	url = https://github.com/gogins/csound-ac.git
