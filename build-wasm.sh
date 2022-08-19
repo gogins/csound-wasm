@@ -8,7 +8,7 @@ source ~/emsdk/emsdk_env.sh
 
 echo "Using EMSCRIPTEN_ROOT: $EMSCRIPTEN_ROOT."
 echo "Python version (must be 3 or higher):"
-python --version
+python3 --version
 
 # Total memory for a WebAssembly module must be a multiple of 64 KB so...
 # 1024 * 64 = 65536 is 64 KB
@@ -21,6 +21,8 @@ export CXX_FLAGS="-v -std=c++17 -O2 -Wno-implicit-int-float-conversion -DINIT_ST
 export EMCC_FLAGS='-s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1 -s DEMANGLE_SUPPORT=1 -s FORCE_FILESYSTEM=1 -s INITIAL_MEMORY=268435456 -s LINKABLE=1 -s NO_EXIT_RUNTIME=0 -s SAFE_HEAP=0 -s WASM=1'
 
 mkdir -p build-wasm
+cp -f dependencies/csound-ac/CsoundAC/version.h dependencies/csound/include/version.h
+
 cd build-wasm
 rm -f CMakeCache.txt
 
@@ -32,11 +34,14 @@ rm -f CMakeCache.txt
 
 echo "Configuring to build static libraries..."
 
-emcmake cmake -G "Unix Makefiles" -Wno-dev ..
+# On macOS, use frameworks.
+
+emcmake cmake -DBIG_ENDIAN=0 -DISBIGENDIAN=0 -DIS_BIG_ENDIAN=0 -G "Unix Makefiles" -DBOOST_ROOT="/opt/homebrew/opt/boost/" -DEIGEN_ROOT="/opt/homebrew/opt/eigen" -DCSOUND_INCLUDE_DIR="/opt/homebrew/Frameworks/CsoundLib64" -DCSOUND_LIBRARY="/opt/homebrew/Frameworks/CsoundLib64" -Wno-dev ..
 
 echo "Building static libraries..."
 
-emmake make cmask csound-static csoundac-static -j6
+### emmake make cmask csound-static csoundac-static -j6
+emmake make csound-static csoundac-static -j6
 
 echo "Compiling csound_embind..."
 

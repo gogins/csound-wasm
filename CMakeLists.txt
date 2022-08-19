@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 2.8)
 
 project(csound-extended)
 
+# WebAssembly is little-endian. These variables work around 
+# emscripten-core/emscripten#14346
+
+set(CMAKE_C_BYTE_ORDER LITTLE_ENDIAN)
+set(CMAKE_CXX_BYTE_ORDER LITTLE_ENDIAN)
+
+set(Boost_INCLUDE_DIR "${BOOST_ROOT}/include")
+set(Eigen_INCLUDE_DIR "${EIGEN_ROOT}/include/eigen3")
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS -frtti)
 add_compile_definitions(USE_DOUBLE=0)
@@ -38,11 +47,12 @@ set(LIBSNDFILE_LIBRARY
     "${CMAKE_SOURCE_DIR}/deps/lib/libFLAC++.a"
     "${CMAKE_SOURCE_DIR}/deps/lib/libvorbisenc.a"
     )
-# For Eigen.
+include_directories("${Boost_INCLUDE_DIR}")
+include_directories("${Eigen_INCLUDE_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound")
-include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound-extended")
+include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound-ac")
 add_subdirectory(dependencies/csound)
-add_subdirectory(cmask)
+# csound-ac sources, with some stuff added, some stuff left out.
 add_subdirectory(CsoundAC)
 
