@@ -26,7 +26,7 @@
     file might be covered by the GNU Lesser General Public License.
 */
 #include <cstdio>
-#include <eigen3/Eigen/Dense>
+#include <Eigen/Dense>
 #include <emscripten/bind.h>
 #include <fstream>
 #include <iostream>

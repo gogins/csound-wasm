@@ -52,7 +52,9 @@ include_directories("${Eigen_INCLUDE_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound-ac")
+# Needs at least one patch, see patches/.
+### add_subdirectory(dependencies/libsndfile)
 add_subdirectory(dependencies/csound)
-# csound-ac sources, with some stuff added, some stuff left out.
+# csound-ac sources, with some stuff added and some stuff left out.
 add_subdirectory(CsoundAC)
 
