@@ -52,9 +52,9 @@ echo "Compiling CsoundAudioProcessor..."
 
 em++ ${CXX_FLAGS} -O1 ${EMCC_FLAGS} --bind -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "FS"]' -s RESERVED_FUNCTION_POINTERS=2 -s SINGLE_FILE=1 -s WASM_ASYNC_COMPILATION=0 --source-map-base . --pre-js ../src/CsoundAudioProcessor_prejs.js --post-js ../src/CsoundAudioProcessor_postjs.js csound_embind.o dependencies/csound/libcsound.a ../deps/lib/libsndfile.a ../deps/lib/libogg.a ../deps/lib/libvorbis.a ../deps/lib/libvorbisenc.a ../deps/lib/libvorbisfile.a ../deps/lib/libFLAC.a -o CsoundAudioProcessor.js
 
-echo "Compiling CsoundAC..."
+echo "Compiling CsoundAC..." 
 
-em++ ${CXX_FLAGS} ${EMCC_FLAGS} -I../dependencies -I../dependencies/csound-extended --bind -s EXPORT_ES6=0 -s EXPORT_NAME="createCsoundAC" -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "FS"]' -s MODULARIZE=1 -s RESERVED_FUNCTION_POINTERS=1 -s SINGLE_FILE=1 -s USE_ES6_IMPORT_META=0 -s WASM_ASYNC_COMPILATION=1 --source-map-base . ../CsoundAC/csoundac_embind.cpp -I../dependencies/eigen -I/opt/homebrew/opt/boost/include -I../deps/libsndfile-1.0.25/src -I.. CsoundAC/libcsoundac-static.a dependencies/csound/libcsound.a ../deps/lib/libsndfile.a ../deps/lib/libogg.a ../deps/lib/libvorbis.a ../deps/lib/libvorbisenc.a ../deps/lib/libvorbisfile.a ../deps/lib/libFLAC.a -o CsoundAC.js
+em++ ${CXX_FLAGS} ${EMCC_FLAGS} -I../dependencies -I../dependencies/csound-extended --bind -s EXPORT_ES6=0 -s EXPORT_NAME="createCsoundAC" -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "FS"]' -s MODULARIZE=1 -s RESERVED_FUNCTION_POINTERS=1 -s SINGLE_FILE=1 -s USE_ES6_IMPORT_META=0 -s WASM_ASYNC_COMPILATION=1 --source-map-base . ../CsoundAC/csoundac_embind.cpp -I../dependencies/csound-ac -I/opt/homebrew/opt/eigen/include/eigen3 -I/opt/homebrew/opt/boost/include -I../deps/libsndfile-1.0.25/src -I.. CsoundAC/libcsoundac-static.a dependencies/csound/libcsound.a ../deps/lib/libsndfile.a ../deps/lib/libogg.a ../deps/lib/libvorbis.a ../deps/lib/libvorbisenc.a ../deps/lib/libvorbisfile.a ../deps/lib/libFLAC.a -o CsoundAC.js
 
 cd ..
 
