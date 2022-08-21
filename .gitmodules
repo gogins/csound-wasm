@@ -1,18 +1,6 @@
 [submodule "dependencies/csound"]
 	path = dependencies/csound
 	url = https://github.com/csound/csound.git
-[submodule "dependencies/csound-extended"]
-	path = dependencies/csound-extended
-	url = https://github.com/gogins/csound-extended.git
-[submodule "dependencies/cmask"]
-	path = dependencies/cmask
-	url = https://github.com/gogins/cmask.git
 [submodule "dependencies/csound-ac"]
 	path = dependencies/csound-ac
 	url = https://github.com/gogins/csound-ac.git
-[submodule "dependencies/eigen"]
-	path = dependencies/eigen
-	url = https://gitlab.com/libeigen/eigen.git
-[submodule "dependencies/boost"]
-	path = dependencies/boost
-	url = https://github.com/boostorg/boost.git
