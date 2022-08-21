@@ -16,12 +16,11 @@ cp build-wasm/CsoundAudio*.* dist-wasm/
 cp build-wasm/CsoundAC.js dist-wasm/
 #cp build-wasm/csound_assets.* dist-wasm/
 #cp build-wasm/csound_samples.js dist-wasm/
-cp -f CsoundAC/piano-roll.js dist-wasm/
-cp -f src/csound_loader.js dist-wasm/
-cp -f src/csound_loader.js ../silencio/js/
-cp -f CsoundAC/piano-roll.js ../silencio/js/
+cp -rf dependencies/csound-ac/patches dist-wasm/
+cp -rf dependencies/csound-ac/silencio dist-wasm/
 pwd
 ls -ll dist-wasm/
 rm -f ${RELEASE_DIR}.zip
-zip -rj ${RELEASE_DIR}.zip dist-wasm/ -x dist-wasm/*_*.js
+zip -r ${RELEASE_DIR}.zip dist-wasm/ -x dist-wasm/*_*.js
+echo "Contents of release archive:"
 unzip -v ${RELEASE_DIR}.zip 
