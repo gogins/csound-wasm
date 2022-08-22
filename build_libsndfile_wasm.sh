@@ -22,7 +22,7 @@ echo "Building libvorbis..."
 cd libvorbis-1.3.6
 emconfigure ./configure --enable-static --disable-shared --prefix=$DEPS_DIR --libdir=$DEPS_DIR/lib --includedir=$DEPS_DIR/include 
 #emconfigure ./configure --enable-static --disable-shared 
-emmake make CPPFLAGS=$DEPS_DIR/libogg-1.3.3/include
+emmake make CPPFLAGS="-I$DEPS_DIR/libogg-1.3.3/include"
 emmake make install
 cd ..
 
@@ -35,8 +35,6 @@ cd ..
 
 echo "Building libsndfile..."
 cd libsndfile-1.0.25
-#emconfigure ./configure --enable-static --disable-shared --disable-libtool-lock --disable-cpu-clip --disable-sqlite --disable-alsa --enable-external-libs --disable-full-suite 
-
 emconfigure ./configure --enable-static --disable-shared --prefix=$DEPS_DIR --disable-libtool-lock --disable-cpu-clip --disable-sqlite --disable-alsa --disable-full-suite --enable-external-libs --includedir=$DEPS_DIR/include LD_FLAGS=-L${DEPS_DIR}/lib --libdir=${DEPS_DIR}/lib OGG_LIBS="-lm -logg" OGG_CFLAGS="-I${DEPS_DIR}/include" VORBIS_LIBS="-lm -lvorbis" VORBIS_CFLAGS="-I${DEPS_DIR}/include" VORBISENC_LIBS="-lvorbisenc" VORBISENC_CFLAGS=-"I${DEPS_DIR}/include" FLAC_LIBS="-lFLAC" FLAC_CFLAGS="-I${DEPS_DIR}/include" CPPFLAGS="-I${DEPS_DIR}/libogg-1.3.3/include"
 emmake make 
 emmake make install

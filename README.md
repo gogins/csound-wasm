@@ -53,7 +53,7 @@ it and it is ready to use.
 
 ## Examples
 
-There is a local Web server and a minimal working example in the release zip 
+There minimal working examples in the release zip 
 file. In the directory where you have unzipped the release, execute:
 
 ```
@@ -61,9 +61,8 @@ python3 -m http.server
 ```
 
 Then navigate to `http://localhost:8000` and view `minimal.html`. Click on 
-the Play button to validate your installation.
-
-Do the same with `trichord_space.html` which also uses CsoundAC.
+the Play button to validate your installation. Do the same with 
+`trichord_space.html` which uses CsoundAC in addition to Csound.
 
 Some of the examples herein will run from 
 https://gogins.github.io/csound-examples. For more information, see my 
@@ -77,31 +76,16 @@ to do this is to install the `libeigen3-dev` and `libboost-dev` system
 packages, and make them available to the Emscripten toolchain. Only header 
 files from these packages are used here.
 
-For your first build, run...
+The main build scripts are:
 
-### `fresh-build-wasm.sh`
-
-This updates the Git submodules, updates the Emscripten toolchain, and then 
-calls... 
-
-### `clean-build-wasm.sh`
-
-This actives the latest Emscripten SDK and sets up the shell environment for 
-building, deletes any previous build directory, creates a clean build 
-directory, clears the Emscripten compiler cache, downloads libsndfile 
-dependencies and builds them, and then calls...
-
-### `build-wasm.sh`
-
-This does the actual build of WASM binaries for csound, cmask, and CsoundAC 
-with a mixture of CMake and build scripts, and then calls...
-
-### `release-wasm.sh`
-
-This marshals the release into the `dist-wasm` directory, and then zips up the 
-contents of `dist-wasm` into a release package in the form of a zip archive 
-that provides WebAssembly builds of Csound and CsoundAC.
-
+1. `build-prequisites-wasm.sh`, which re-installs the Emscripten SDK, 
+   downloads libsndfile and its dependencies, and builds libsndfile. You 
+   should only have to run this once.
+   
+2. `build-wasm.sh`, which updates submodules, builds Csound for WASM, builds 
+   CsoundAC for WASM, and creates a release package that also includes 
+   examples, Csound instrment definitions, miscellaneous JavaScript files, 
+   and so on.
 
 
 
