@@ -10,8 +10,7 @@ mkdir $RELEASE_DIR
 find . -name "*~" -exec rm {} \;
 cp README.md dist-wasm/
 cp src/*.js dist-wasm/
-cp src/httpd.py dist-wasm/
-cp src/minimal.html dist-wasm/
+cp src/*.html dist-wasm/
 cp build-wasm/CsoundAudio*.* dist-wasm/
 cp build-wasm/CsoundAC.js dist-wasm/
 #cp build-wasm/csound_assets.* dist-wasm/

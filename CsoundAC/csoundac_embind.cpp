@@ -26,6 +26,7 @@
     file might be covered by the GNU Lesser General Public License.
 */
 #include <cstdio>
+#include <ctime>
 #include <Eigen/Dense>
 #include <emscripten/bind.h>
 #include <fstream>
@@ -897,7 +898,6 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     // Mostly not supported and not used, much else simplified.
     emscripten::class_<csound::System>("System")
         .constructor<>()
-        .class_function("beep", &csound::System::beep)
         .class_function("debug", &csound::System::debug_text)
         .class_function("error", &csound::System::error_text)
         .class_function("execute", &csound::System::execute, emscripten::allow_raw_pointers())
@@ -913,8 +913,9 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .class_function("setMessageCallback", &csound::System::setMessageCallback)
         .class_function("setMessageLevel", &csound::System::setMessageLevel)
         .class_function("setUserdata", &csound::System::setUserdata, emscripten::allow_raw_pointers())
+        //.class_function("stopTiming", &csound::System::stopTiming)
         .class_function("warn", &csound::System::warn_text)
-     ;
+    ;
     emscripten::class_<csound::Voicelead>("Voicelead")
         .constructor<>()
         .function("addOctave", &csound::Voicelead::addOctave)

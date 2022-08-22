@@ -4,10 +4,11 @@ echo "Building csound-extended for WebAssembly..."
 export EMSCRIPTEN_ALLOW_NEWER_PYTHON=1
 
 source ~/emsdk/emsdk_env.sh
-
 echo "Using EMSCRIPTEN_ROOT: $EMSCRIPTEN_ROOT."
 echo "Python version (must be 3 or higher):"
 python3 --version
+
+### bash update-dependency-submodules.sh
 
 # Total memory for a WebAssembly module must be a multiple of 64 KB so...
 # 1024 * 64 = 65536 is 64 KB

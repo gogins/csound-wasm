@@ -63,6 +63,8 @@ python3 -m http.server
 Then navigate to `http://localhost:8000` and view `minimal.html`. Click on 
 the Play button to validate your installation.
 
+Do the same with `trichord_space.html` which also uses CsoundAC.
+
 Some of the examples herein will run from 
 https://gogins.github.io/csound-examples. For more information, see my 
 [csound-examples](https://github.com/gogins/csound-examples) repository.
@@ -99,13 +101,6 @@ with a mixture of CMake and build scripts, and then calls...
 This marshals the release into the `dist-wasm` directory, and then zips up the 
 contents of `dist-wasm` into a release package in the form of a zip archive 
 that provides WebAssembly builds of Csound and CsoundAC.
-
-## Testing
-
-Clone my https://github.com/gogins/csound-examples repository. Unzip the 
-`csound-extended-wasm.{version}.zip` file into the 
-`csound-examples/docs` directory, run the local webserver with `python3 -m http.server`, 
-got to `http://localhost:8000` in Firefox, and run the minimal.html and trichord_space.html examples.
 
 
 
