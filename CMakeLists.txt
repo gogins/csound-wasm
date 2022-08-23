@@ -52,8 +52,11 @@ include_directories("${Eigen_INCLUDE_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound-ac")
-# Needs at least one patch, see patches/.
-### add_subdirectory(dependencies/libsndfile)
+#~ # Csound plugin opcodes, we only use some. Not doing now.
+#~ set(CSOUND_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/dependencies/csound/include")
+#~ add_subdirectory(dependencies/plugins)
+# Just the regular Csound sources, which already are supposed to build with 
+# Emscripten.
 add_subdirectory(dependencies/csound)
 # csound-ac sources, with some stuff added and some stuff left out.
 add_subdirectory(CsoundAC)

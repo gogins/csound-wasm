@@ -20,6 +20,8 @@ cp -rf dependencies/csound-ac/silencio dist-wasm/
 pwd
 ls -ll dist-wasm/
 rm -f ${RELEASE_DIR}.zip
-zip -r ${RELEASE_DIR}.zip dist-wasm/ -x dist-wasm/*_*.js
+cd dist-wasm
+zip -r ../${RELEASE_DIR}.zip . -x *_*.js
 echo "Contents of release archive:"
+cd ..
 unzip -v ${RELEASE_DIR}.zip 
