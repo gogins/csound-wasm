@@ -192,6 +192,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     emscripten::function("scale", &csound::scale);
     emscripten::function("chord", &csound::chord);
     emscripten::function("transpose_degrees", &csound::transpose_degrees);
+    emscripten::function("SET_CHORD_SPACE_DEBUGGING", &csound::SET_CHORD_SPACE_DEBUGGING);
     emscripten::class_<csound::Chord>("Chord")
         .constructor<>()
         .constructor<csound::Chord>()
@@ -322,7 +323,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("setTurtleChord", &csound::ChordLindenmayer::setTurtleChord)
         .function("setTurtleModality", &csound::ChordLindenmayer::setTurtleModality)
         .function("setTurtleScale", &csound::ChordLindenmayer::setTurtleScale)
-        .function("setTurtleScaleDegree", &csound::ChordLindenmayer::setTurtleScaleDegree)    
+        .function("setTurtleScaleDegree", &csound::ChordLindenmayer::setTurtleScaleDegree)
     ;
     // FINISHED
     emscripten::class_<csound::PITV>("PITV")
@@ -339,7 +340,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .property("g", &csound::PITV::getG)
         .property("N", &csound::PITV::getN)
         .property("range", &csound::PITV::getRange)
-     ;
+    ;
     // FINISHED
     emscripten::class_<csound::Composition>("Composition")
         .constructor<>()

@@ -70,9 +70,9 @@ void csoundMessageCallback_(CSOUND *csound__, int attr, const char *format, va_l
 }
 
 struct MidiData {
-	unsigned char status;
-	unsigned char data1;
-	unsigned char data2;
+    unsigned char status;
+    unsigned char data1;
+    unsigned char data2;
     unsigned char dummy;
 };
 
