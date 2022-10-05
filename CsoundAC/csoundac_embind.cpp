@@ -611,6 +611,8 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("toCsoundIStatementRelease", &csound::Event::toCsoundIStatementRelease)
         .function("toString", &csound::Event::toString)
     ;
+    emscripten::function("getCorrectNegativeDurations", &csound::getCorrectNegativeDurations);
+    emscripten::function("setCorrectNegativeDurations", &csound::setCorrectNegativeDurations);
     emscripten::function("hello", &hello);
     // FINISHED
     emscripten::class_<csound::Intercut, emscripten::base<csound::ScoreNode> >("Intercut")
