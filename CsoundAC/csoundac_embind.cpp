@@ -742,6 +742,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
        .function("setRescale", &csound::Rescale::setRescale)
     ;
     // FINISHED
+    emscripten::register_vector<csound::Scale>("std::vector<csound::Scale");
     emscripten::class_<csound::Scale, emscripten::base<csound::Chord>>("Scale")
         .constructor<>()
         .constructor<std::string>()
@@ -768,6 +769,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("append", &csound::Score::append_note)
         .function("append_event", &csound::Score::append_event)
         .function("arrange_all", &csound::Score::arrange_all)
+        .function("clear", &csound::Score::clear)
         .function("findScale", &csound::Score::findScale)
         .function("getCsoundScore", &csound::Score::getCsoundScore)
         .function("getDuration", &csound::Score::getDuration)

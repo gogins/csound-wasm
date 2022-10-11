@@ -155,6 +155,12 @@ public:
     virtual void InputMessage(const std::string &sco) {
         Csound::InputMessage(sco.c_str());
     }
+    virtual int KillInstance(MYFLT p1, const std::string &insname_, int mode, bool release) {
+        // Actually we ignore all string instrument names. The signature 
+        // is retained for API compatibility.
+        auto result = csoundKillInstance(GetCsound(), p1, nullptr, mode, release);
+        return result;
+    }
     virtual void Message(const std::string &message) {
         Csound::Message(message.c_str());
     }
@@ -357,6 +363,8 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("InputMessage", &CsoundEmbind::InputMessage)
         .function("inputMessage", &CsoundEmbind::InputMessage)
         .function("Message", &CsoundEmbind::Message)
+        .function("KillInstance", &CsoundEmbind::KillInstance)
+        .function("killInstance", &CsoundEmbind::KillInstance)
         .function("message", &CsoundEmbind::Message)
         .function("MidiEventIn", &CsoundEmbind::MidiEventIn)
         .function("ReadScore", &CsoundEmbind::ReadScore)
