@@ -742,7 +742,6 @@ EMSCRIPTEN_BINDINGS(csoundac) {
        .function("setRescale", &csound::Rescale::setRescale)
     ;
     // FINISHED
-    emscripten::register_vector<csound::Scale>("std::vector<csound::Scale");
     emscripten::class_<csound::Scale, emscripten::base<csound::Chord>>("Scale")
         .constructor<>()
         .constructor<std::string>()
