@@ -875,7 +875,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("getNormalizedW", &csound::StrangeAttractor::getNormalizedW)
         .function("getNormalizedX", &csound::StrangeAttractor::getNormalizedX)
         .function("getNormalizedY", &csound::StrangeAttractor::getNormalizedY)
-        .function("getNormalizedZ", &csound::StrangeAttractor::getNormalixedZ)
+        .function("getNormalizedZ", &csound::StrangeAttractor::getNormalizedZ)
         .function("getScoreType", &csound::StrangeAttractor::getScoreType)
         .function("getW", &csound::StrangeAttractor::getW)
         .function("getX", &csound::StrangeAttractor::getX)
