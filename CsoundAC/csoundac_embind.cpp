@@ -193,6 +193,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     emscripten::function("chord", &csound::chord);
     emscripten::function("transpose_degrees", &csound::transpose_degrees);
     emscripten::function("SET_CHORD_SPACE_DEBUGGING", &csound::SET_CHORD_SPACE_DEBUGGING);
+    emscripten::function("SET_SCOPED_DEBUGGING", &csound::SET_SCOPED_DEBUGGING);
     emscripten::class_<csound::Chord>("Chord")
         .constructor<>()
         .constructor<csound::Chord>()
@@ -727,7 +728,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("createDistribution", &csound::Random::createDistribution)
         .function("getRandomCoordinates", &csound::Random::getRandomCoordinates)
         .function("sample", &csound::Random::sample)
-        .function("seed", &csound::Random::seed)
+        .class_function("seed", &csound::Random::seed)
     ;
     // FINISHED
     emscripten::class_<csound::RemoveDuplicates, emscripten::base<csound::Node> >("RemoveDuplicates")
