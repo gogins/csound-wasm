@@ -773,6 +773,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("findScale", &csound::Score::findScale)
         .function("getCsoundScore", &csound::Score::getCsoundScore)
         .function("getDuration", &csound::Score::getDuration)
+        .function("getDurationFromZero", &csound::Score::getDurationFromZero)
         .function("getPitches", &csound::Score::getPitches)
         .function("getPT", &csound::Score::getPT)
         .function("getPTV", &csound::Score::getPTV)

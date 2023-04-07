@@ -84,7 +84,7 @@ The main build scripts are:
    
 2. `build-wasm.sh`, which updates submodules, builds Csound for WASM, builds 
    CsoundAC for WASM, and creates a release package that also includes 
-   examples, Csound instrment definitions, miscellaneous JavaScript files, 
+   examples, Csound instrument definitions, miscellaneous JavaScript files, 
    and so on.
 
 
