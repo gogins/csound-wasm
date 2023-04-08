@@ -798,6 +798,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("rescale", emscripten::select_overload<void()>(&csound::Score::rescale))
         .function("save", &csound::Score::save_filename)
         .function("setDuration", &csound::Score::setDuration)
+        .function("setDurationFromZero", &csound::Score::setDurationFromZero)
         .function("setK", &csound::Score::setK)
         .function("setKL", &csound::Score::setKL)
         .function("setKV", &csound::Score::setKV)
