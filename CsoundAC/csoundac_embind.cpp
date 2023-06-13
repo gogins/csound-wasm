@@ -751,6 +751,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("operator=", &csound::Scale::operator=)
         .function("getTypeName", &csound::Scale::getTypeName)
         .function("modulations", &csound::Scale::modulations)
+        .function("modulations_for_voices", &csound::Scale::modulations_for_voices)
         .function("modulations_for_scale_types", &csound::Scale::modulations_for_scale_types)
         .function("relative_tonicizations", &csound::Scale::relative_tonicizations)
         .function("relative_tonicizations_for_scale_types", &csound::Scale::relative_tonicizations_for_scale_types)
