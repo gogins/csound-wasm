@@ -11,18 +11,20 @@ grant these permissions for the site hosting Csound to the Web browser
 (usually by right-clicking on the lock symbol to the left of the URL, or 
 on a permissions icon to the left of the URL).
 
-At this time, for reasons not yet known to me, the csound-wasm build 
-of Csound does not always run in Google Chrome, even after granting 
-permissions. I have opened an issue to fix this.
-
-In the meantime, after granting permissions, everything works fine in 
-Firefox.
-
 ## Introduction
 
-THis directory builds and packages csound-wasm for WebAssembly.
-This build replaces `CsoundObj.js` from the core Csound repository with a 
-WebAssembly build of Csound, compiled using the Emscripten LLVM toolchain.
+THis directory builds and packages csound-wasm (Csound for WebAssembly).
+This build replaces `CsoundObj.js` from the core Csound repository with my 
+own WebAssembly build of Csound, compiled using the Emscripten LLVM 
+toolchain.
+
+Although I have tried to use `CsoundObj` in my compositions, I find that 
+my own build is more stable and easier to use for my purposes. That is because 
+my WebAssembly version of the Csound API is much closer to the original C++ 
+interface, supports printing Csound messages from JavaScript, and appears to 
+be more resilient and reliable. As long as this project is easy to maintain, I 
+will continue to support it and use it.
+
 This build uses the new WebAudio AudioWorklet for superior performance with 
 fewer audio issues. Features include:
 
