@@ -748,6 +748,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .constructor<std::string>()
         .constructor<std::string, const csound::Chord&>()
         .function("chord", &csound::Scale::chord)
+        .function("degree", &csound::Scale::degree)
         .function("operator=", &csound::Scale::operator=)
         .function("getTypeName", &csound::Scale::getTypeName)
         .function("modulations", &csound::Scale::modulations)
