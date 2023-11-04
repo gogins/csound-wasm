@@ -9,7 +9,7 @@ git branch
 git pull
 cd ../..
 cd dependencies/csound
-git checkout master
+git checkout csound6
 git branch
 git pull
 cd ../..
