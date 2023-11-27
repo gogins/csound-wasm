@@ -55,8 +55,8 @@ it and it is ready to use.
 
 ## Examples
 
-There minimal working examples in the release zip 
-file. In the directory where you have unzipped the release, execute:
+There are some working examples in the release zip file. In the directory where 
+you have unzipped the release, execute:
 
 ```
 python3 -m http.server
