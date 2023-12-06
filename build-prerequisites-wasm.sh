@@ -3,7 +3,7 @@ clear
 echo "Clean build of csound-wasm prerequisites for WebAssembly..."
 export WEBASSEMBLY_HOME=`pwd`}
 echo "WEBASSEMBLY_HOME: ${WEBASSEMBLY_HOME}"
-echo "Completely re-installing total EMSDK..."
+### echo "Completely re-installing total EMSDK..."
 ~/emsdk/emsdk install tot
 source ~/emsdk/emsdk_env.sh
 echo "Using EMSCRIPTEN_ROOT: ${EMSCRIPTEN_ROOT}."

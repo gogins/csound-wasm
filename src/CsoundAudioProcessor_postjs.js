@@ -119,8 +119,9 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
                 this.csound.InputMessage(data[1]);
                 break;
             case "IsPlaying":
-                result = this.csound.IsPlaying();
-                this.port.postMessage(["IsPlayingResult", result]);
+                // The Csound class does not define this method.
+                // result = this.csound.IsPlaying();
+                this.port.postMessage(["IsPlayingResult", "Not implemented."]);
                 break;
             case "KillInstance":
                 let p1 = data[1];
