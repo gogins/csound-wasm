@@ -379,6 +379,8 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("setMessageCallback", &CsoundEmbind::SetMessageCallback)
         .function("SetOption", &CsoundEmbind::SetOption)
         .function("setOption", &CsoundEmbind::SetOption)
+        .function("SetOutput", &CsoundEmbind::SetOutput)
+        .function("setOutput", &CsoundEmbind::SetOutput)
         .function("Start", &CsoundEmbind::Start)
         .function("start", &CsoundEmbind::Start)
         ;
