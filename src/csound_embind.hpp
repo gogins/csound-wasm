@@ -120,7 +120,8 @@ public:
         return Csound::EvalCode(orc.c_str());
     }
     virtual MYFLT GetControlChannel(const std::string &name) {
-        return Csound::GetControlChannel(name.c_str(), 0);
+        int dummy_error = 0;
+        return Csound::GetControlChannel(name.c_str(), &dummy_error);
     }
     virtual std::string GetEnv(const std::string &name) {
         return GetEnv(name.c_str());
