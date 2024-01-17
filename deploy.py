@@ -22,8 +22,10 @@ targets.append(os.path.join(home, "gogins.github.io"))
 targets.append(os.path.join(home, "nwbuild-cloud-5/src"))
 
 deployables = '''CsoundAC.js
+CsoundAC.wasm.debug.wasm
 CsoundAudioNode.js
 CsoundAudioProcessor.js
+CsoundAudioProcessor.wasm.debug.wasm
 csound_loader.js
 minimal.html
 patches
