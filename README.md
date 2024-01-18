@@ -103,6 +103,9 @@ The main build scripts are:
  soundfile record by Csound's `fout` opcode, into the browser's JavaScript 
  context, where it can be downloaded.
 
+ - Enable source level debugging of C/C++ code compiled to WASM in DWARF 
+ format. Very useful!
+
  - Updated Csound.
 
 ### [v0.3.2](https://github.com/gogins/csound-wasm/commits/v0.3.2)
