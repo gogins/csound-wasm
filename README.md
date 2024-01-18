@@ -96,6 +96,15 @@ The main build scripts are:
 
 ## Release Notes
 
+### [v0.3.3](https://github.com/gogins/csound-wasm/commits/v0.3.2)
+
+ - Added a `CsoundAudioNode.GetFileData` method to enable users to get data 
+ from ta file in the memory filesystem of the AudioWorkletGlobalScope, e.g. a 
+ soundfile record by Csound's `fout` opcode, into the browser's JavaScript 
+ context, where it can be downloaded.
+
+ - Updated Csound.
+
 ### [v0.3.2](https://github.com/gogins/csound-wasm/commits/v0.3.2)
 
  - Updated Csound to version 6.19.0.
