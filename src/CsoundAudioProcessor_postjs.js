@@ -71,6 +71,17 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
                 result = this.csound.GetCurrentTimeSamples();
                 this.port.postMessage(["GetCurrentTimeSamplesResult", result]);
                 break;
+            /**
+             * Returns all data in the specified file, which is assumed to be in the 
+             * root directory, and which is normally a soundfile. As the data can be 
+             * large, it is transferred, not copied.
+             */
+            case "GetFileData":
+                let file_data = Module.FS.readFile(data[1]);
+                console.log("GetFileData: length of data: " + file_data.length);
+                // The Uint8Array is not transferable, but its buffer _is_ transferable.
+                this.port.postMessage(["GetFileDataResult", file_data], [file_data.buffer]);
+                break;
             case "GetEnv":
                 result = this.csound.GetEnv(data[1]);
                 this.port.postMessage(["GetEnvResult", result]);
@@ -412,7 +423,7 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
             console.log(e);
         }
     }
-};
+ };
 
 registerProcessor("csound-audio-processor", CsoundAudioProcessor);
 console.log("Registered 'csound-audio-processor'.");
