@@ -19,7 +19,7 @@ targets.append(os.path.join(home, "csound-ac/silencio/js"))
 targets.append(os.path.join(home, "csound-android/CsoundForAndroid/CsoundForAndroid/CsoundApplication/src/main/assets/examples/Gogins"))
 targets.append(os.path.join(home, "csound-examples/docs"))
 targets.append(os.path.join(home, "gogins.github.io"))
-targets.append(os.path.join(home, "nwbuild-cloud-5/src"))
+targets.append(os.path.join(home, "michael.gogins.studio/music/NYCEMF-2024"))
 
 deployables = '''CsoundAC.js
 CsoundAC.wasm.debug.wasm
