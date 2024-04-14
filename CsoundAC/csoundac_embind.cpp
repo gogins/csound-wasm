@@ -64,7 +64,62 @@ In place of overloads use distinguished names, but for the Embind name, use
 the name that would go to the most commonly used overload.
 */
 
+/**
+ * Basic matrix arithmetic for CsoundAC notes and transformation matrices,
+ * in code that accesses CsoundAC through JavaScript.
+ */
+static Eigen::MatrixXd zeros(dimensions) {
+    return Eigen::MatrixXd::Zero(dimensions, dimensions);
+}
+
+static Eigen::MatrixXd identity(dimensions) {
+    return Eigen::MatrixXd::Identity(dimensions, dimensions);
+}
+
+static Eigen::MatrixXd add(const EigenMatrixXd &m, double s) {
+    return (m + s);
+}
+
+static Eigen::MatrixXd subract(const EigenMatrixXd &m, double s) {
+    return (m - s);
+}
+
+static Eigen::MatrixXd scalar_multiply(const EigenMatrixXd &m, double s) {
+    return (m * s);
+}
+
+static Eigen::MatrixXd scalar_divide(const EigenMatrixXd &m, double s) {
+    return (m / s);
+}
+
+static double norm(const EigenMatrixSd &m) {
+    return m.norm();
+}
+
+static Eigen::MatrixXd matrix_multiply(const EigenMatrixXd &a, const EigenMatrixXd &b) {
+    return (a * b);
+}
+
+static Eigen::MatrixXd create_rotation(nt from_axis, int to_axis, double radians) {
+    auto rotation = Eigen::MatrixXd::identity(12, 12);
+    rotation(from_axis, from_axis) = std::cos(radians);
+    rotation(from_axis, to_axis) = -std::sin(radians);
+    rotation(to_axis, from_axis) = std::sin(radians);
+    rotation(to_axis, to_axis) = std::cos(radians);
+    return rotation;
+}
+
 EMSCRIPTEN_BINDINGS(csoundac) {  
+    emscripten::register_function("create", &zeros);
+    emscripten::register_function("identity", &identity);
+    emscripten::register_function("add", &add);
+    emscripten::register_function("subtract", &subtract)
+    emscripten::register_function("scalar_multiply", &scalar_multiply)
+    emscripten::register_function("scalar_divide", &scalar_divide)
+    emscripten::register_function("matrix_multiply", &subtract)
+    emscripten::register_function("norm", &subtract)
+    emscripten::register_function("create_rotation", &subtract)
+    
     emscripten::register_map<std::string,std::string>("StringToStringMap");
     emscripten::register_vector<double>("DoubleVector");
     emscripten::register_vector<int>("IntVector");
@@ -194,6 +249,19 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     emscripten::function("transpose_degrees", &csound::transpose_degrees);
     emscripten::function("SET_CHORD_SPACE_DEBUGGING", &csound::SET_CHORD_SPACE_DEBUGGING);
     emscripten::function("SET_SCOPED_DEBUGGING", &csound::SET_SCOPED_DEBUGGING);
+    /**
+     * Basic matrix arithmetic for CsoundAC notes and transformation matrices,
+     * in code that accesses CsoundAC through JavaScript; s is a scalar, m is a 
+     * matrix.
+     * m = identity(dimensions)
+     * m = add(m, s)
+     * m = subtract(m, s)
+     * m = scalar_multiply(m, s)
+     * m = scalar_divide(m, s)
+     * s = norm(m)
+     * m = multiply(m, m)
+     * m = create_rotation(dimension1, dimension2, radians)
+     */
     emscripten::class_<csound::Chord>("Chord")
         .constructor<>()
         .constructor<csound::Chord>()
