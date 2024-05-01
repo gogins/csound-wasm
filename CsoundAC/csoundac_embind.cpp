@@ -68,40 +68,40 @@ the name that would go to the most commonly used overload.
  * Basic matrix arithmetic for CsoundAC notes and transformation matrices,
  * in code that accesses CsoundAC through JavaScript.
  */
-static Eigen::MatrixXd zeros(dimensions) {
+static Eigen::MatrixXd zeros(int dimensions) {
     return Eigen::MatrixXd::Zero(dimensions, dimensions);
 }
 
-static Eigen::MatrixXd identity(dimensions) {
+static Eigen::MatrixXd identity(int dimensions) {
     return Eigen::MatrixXd::Identity(dimensions, dimensions);
 }
 
-static Eigen::MatrixXd add(const EigenMatrixXd &m, double s) {
-    return (m + s);
+static Eigen::MatrixXd add(const Eigen::MatrixXd &m, double s) {
+    return (m.array() + s);
 }
 
-static Eigen::MatrixXd subract(const EigenMatrixXd &m, double s) {
-    return (m - s);
+static Eigen::MatrixXd subtract(const Eigen::MatrixXd &m, double s) {
+    return (m.array() - s);
 }
 
-static Eigen::MatrixXd scalar_multiply(const EigenMatrixXd &m, double s) {
-    return (m * s);
+static Eigen::MatrixXd scalar_multiply(const Eigen::MatrixXd &m, double s) {
+    return (m.array() * s);
 }
 
-static Eigen::MatrixXd scalar_divide(const EigenMatrixXd &m, double s) {
-    return (m / s);
+static Eigen::MatrixXd scalar_divide(const Eigen::MatrixXd &m, double s) {
+    return (m.array() / s);
 }
 
-static double norm(const EigenMatrixSd &m) {
+static double norm(const Eigen::MatrixXd &m) {
     return m.norm();
 }
 
-static Eigen::MatrixXd matrix_multiply(const EigenMatrixXd &a, const EigenMatrixXd &b) {
+static Eigen::MatrixXd matrix_multiply(const Eigen::MatrixXd &a, const Eigen::MatrixXd &b) {
     return (a * b);
 }
 
-static Eigen::MatrixXd create_rotation(nt from_axis, int to_axis, double radians) {
-    auto rotation = Eigen::MatrixXd::identity(12, 12);
+static Eigen::MatrixXd create_rotation(int from_axis, int to_axis, double radians) {
+    Eigen::MatrixXd rotation = Eigen::MatrixXd::Identity(12, 12);
     rotation(from_axis, from_axis) = std::cos(radians);
     rotation(from_axis, to_axis) = -std::sin(radians);
     rotation(to_axis, from_axis) = std::sin(radians);
@@ -110,15 +110,15 @@ static Eigen::MatrixXd create_rotation(nt from_axis, int to_axis, double radians
 }
 
 EMSCRIPTEN_BINDINGS(csoundac) {  
-    emscripten::register_function("create", &zeros);
-    emscripten::register_function("identity", &identity);
-    emscripten::register_function("add", &add);
-    emscripten::register_function("subtract", &subtract)
-    emscripten::register_function("scalar_multiply", &scalar_multiply)
-    emscripten::register_function("scalar_divide", &scalar_divide)
-    emscripten::register_function("matrix_multiply", &subtract)
-    emscripten::register_function("norm", &subtract)
-    emscripten::register_function("create_rotation", &subtract)
+    emscripten::function("create", &zeros);
+    emscripten::function("identity", &identity);
+    emscripten::function("add", &add);
+    emscripten::function("subtract", &subtract);
+    emscripten::function("scalar_multiply", &scalar_multiply);
+    emscripten::function("scalar_divide", &scalar_divide);
+    emscripten::function("matrix_multiply", &matrix_multiply);
+    emscripten::function("norm", &norm);
+    emscripten::function("create_rotation", &create_rotation);
     
     emscripten::register_map<std::string,std::string>("StringToStringMap");
     emscripten::register_vector<double>("DoubleVector");
@@ -253,7 +253,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
      * Basic matrix arithmetic for CsoundAC notes and transformation matrices,
      * in code that accesses CsoundAC through JavaScript; s is a scalar, m is a 
      * matrix.
-     * m = identity(dimensions)
+     * m = identity(int dimensions)
      * m = add(m, s)
      * m = subtract(m, s)
      * m = scalar_multiply(m, s)
