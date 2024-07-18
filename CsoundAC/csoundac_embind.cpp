@@ -889,15 +889,16 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("voicelead_pitches", &csound::Score::voicelead_pitches)
         .function("setPTV", &csound::Score::setPTV)
     ;
-    //~ // FINISHED
-    //~ emscripten::class_<csound::ChordScore, emscripten::base<csound::Score> >("ChordScore")
-        //~ .constructor<>()
-        //~ .function("conformToChords", &csound::ChordScore::conformToChords)
-        //~ .function("getChord", &csound::ChordScore::getChord, emscripten::allow_raw_pointers())
-        //~ .function("getScale", &csound::ChordScore::getScale, emscripten::allow_raw_pointers())
-        //~ .function("insertChord", &csound::ChordScore::insertChord)
-        //~ .function("setScale", &csound::ChordScore::setScale, emscripten::allow_raw_pointers())
-   //~ ;
+    // FINISHED
+    emscripten::class_<csound::ChordScore, emscripten::base<csound::Score> >("ChordScore")
+        .constructor<>()
+        .function("conformToChords", &csound::ChordScore::conformToChords)
+        .function("getChord", &csound::ChordScore::getChord, emscripten::allow_raw_pointers())
+        // NOT SUPPORTED.
+        // .function("getScale", &csound::ChordScore::getScale, emscripten::allow_raw_pointers())
+        .function("insertChord", &csound::ChordScore::insertChord)
+        .function("setScale", &csound::ChordScore::setScale, emscripten::allow_raw_pointers())
+    ;
     // FINISHED
     emscripten::class_<csound::ScoreModel, emscripten::base<csound::Composition> >("ScoreModel")
         .constructor<>()

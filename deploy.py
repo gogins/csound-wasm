@@ -14,7 +14,7 @@ os.chdir(source_directory)
 print('Changed directory to "{}"\n'.format(os.getcwd()))
 
 targets = []
-targets.append(os.path.join(home, "cloud-5/public"))
+targets.append(os.path.join(home, "cloud-5"))
 targets.append(os.path.join(home, "csound-ac/silencio/js"))
 targets.append(os.path.join(home, "csound-android/CsoundForAndroid/CsoundForAndroid/CsoundApplication/src/main/assets/examples/Gogins"))
 targets.append(os.path.join(home, "csound-examples/docs"))
@@ -28,12 +28,7 @@ CsoundAudioProcessor.js
 CsoundAudioProcessor.wasm.debug.wasm
 csound_loader.js
 minimal.html
-patches
 trichord_space.html'''
-
-targets_ = '''
-~/cloud-5/public/
-~/gogins.github.io/'''
 
 for target in targets:
     for deployable in deployables.splitlines():
