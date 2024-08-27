@@ -54,9 +54,9 @@ rm -f CMakeCache.txt
 
 echo "Configuring to build static libraries..."
 
-emcmake cmake -G "Unix Makefiles" -DUSE_COMPILER_OPTIMIZATIONS=0 -DBIG_ENDIAN=0 -DISBIGENDIAN=0 -DIS_BIG_ENDIAN=0 -DEIGEN_ROOT="/opt/homebrew/opt/eigen" -DBOOST_ROOT="${BOOST_ROOT}" -DCSOUND_INCLUDE_DIR="../dependencies/csound" -DSNDFILE_H_PATH="../deps/include" -DSNDFILE_LIBRARY="../deps/lib/libsndfile.a" -Wno-dev ..
+emcmake cmake -G "Unix Makefiles" -DBUILD_STATIC_LIBRARY=1 -DUSE_COMPILER_OPTIMIZATIONS=0 -DBIG_ENDIAN=0 -DISBIGENDIAN=0 -DIS_BIG_ENDIAN=0 -DEIGEN_ROOT="/opt/homebrew/opt/eigen" -DBOOST_ROOT="${BOOST_ROOT}" -DCSOUND_INCLUDE_DIR="../dependencies/csound" -DSNDFILE_H_PATH="../deps/include" -DSNDFILE_LIBRARY="../deps/lib/libsndfile.a" -Wno-dev -S .. -B .
 
-echo "Building Csound static library..."
+echo "Building Csound library..."
 emmake make csound-static -j6 VERBOSE=1 
 ## cmake --build csound-static -j6 VERBOSE=1
 

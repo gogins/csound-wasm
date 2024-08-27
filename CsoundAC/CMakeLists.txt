@@ -35,7 +35,7 @@ set(CPPSOUND_SOURCE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound/interface
 set(CSOUND_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound/include")
 set(PORTSMF_DIRECTORY "${CMAKE_SOURCE_DIR}/dependencies/csound-ac/dependencies/portsmf")
 message("PORTSMF_DIRECTORY: ${PORTSMF_DIRECTORY}")
-set(SNDFILE_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/deps/libsndfile-1.0.25/src")
+## set(SNDFILE_INCLUDE_DIRECTORY "${CMAKE_SOURCE_DIR}/deps/libsndfile-1.0.25/src")
 # ${CSOUNDAC_SOURCE_DIRECTORY}/ImageToScore.cpp
 add_library(csoundac-static 
 ${CPPSOUND_SOURCE_DIRECTORY}/CppSound.cpp
