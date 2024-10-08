@@ -1,5 +1,4 @@
 #!/bin/bash
-clear
 echo "Building csound-extended for WebAssembly..."
 
 export EMSCRIPTEN_ALLOW_NEWER_PYTHON=1
