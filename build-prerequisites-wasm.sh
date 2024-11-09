@@ -1,5 +1,4 @@
 #!/bin/bash
-clear
 echo "Clean build of csound-wasm prerequisites for WebAssembly..."
 export WEBASSEMBLY_HOME=`pwd`}
 echo "WEBASSEMBLY_HOME: ${WEBASSEMBLY_HOME}"
