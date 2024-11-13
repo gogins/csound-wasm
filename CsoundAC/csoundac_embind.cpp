@@ -221,7 +221,9 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     emscripten::function("notes", &csound::notes);
     emscripten::function("numerics_information", &csound::numerics_information);
     emscripten::function("operator==", &csound::operator==);
-    emscripten::function("operator<", emscripten::select_overload<bool(const csound::Chord&,const csound::Chord&)>(&csound::operator<));
+    emscripten::function("lt_chord", emscripten::select_overload<bool(const csound::Chord&,const csound::Chord&)>(&csound::operator<));
+    emscripten::function("lt_scale", emscripten::select_overload<bool(const csound::Scale&,const csound::Scale&)>(&csound::operator<));
+    emscripten::function("lt_harmony_point_2", emscripten::select_overload<bool(const csound::HarmonyPoint2&,const csound::HarmonyPoint2&)>(&csound::operator<));
     emscripten::function("operator<=", &csound::operator<=);
     emscripten::function("operator>", &csound::operator>);
     emscripten::function("operator>=", &csound::operator>=);
@@ -350,6 +352,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("nrR", &csound::Chord::nrR)
         .function("nrS", &csound::Chord::nrS)
         .function("operator=", emscripten::select_overload<csound::Chord &(const csound::Chord &)>(&csound::Chord::operator=))
+        ///.function("operator<", emscripten::select_overload<csound::Chord &(const csound::Chord &)>(&csound::Chord::operator<))
         .function("opt_domain_sectors", &csound::Chord::opt_domain_sectors)
         .function("opti_domain_sectors", &csound::Chord::opti_domain_sectors)
         .function("origin", &csound::Chord::origin)
@@ -610,7 +613,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         // NOT SUPPORTED
         //.property("voiceBeginnings", &csound::CounterpointNode::getVoiceBeginnings, &csound::CounterpointNode::setVoiceBeginnings, emscripten::allow_raw_pointers())
     ;
-    emscripten::function("operator<", emscripten::select_overload<bool(const csound::Event&,const csound::Event&)>(&csound::operator<));
+    emscripten::function("lt_event", emscripten::select_overload<bool(const csound::Event&,const csound::Event&)>(&csound::operator<));
     // FINISHED
     emscripten::class_<csound::Event, emscripten::base<Eigen::VectorXd> >("Event")
         .constructor<>()
@@ -658,6 +661,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("isNoteOff", &csound::Event::isNoteOff)
         .function("isNoteOn", &csound::Event::isNoteOn)
         .function("operator=", emscripten::select_overload<csound::Event&(const csound::Event&)>(&csound::Event::operator=))
+        ///.function("operator<", emscripten::select_overload<csound::Event&(const csound::Event&)>(&csound::Event::operator<))
         .function("removeProperty", &csound::Event::removeProperty)
         .function("set", &csound::Event::set)
         .function("setAmplitude", &csound::Event::setAmplitude)
@@ -702,6 +706,9 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .property("homogeneity", &csound::HarmonyPoint2::get_homogeneity, &csound::HarmonyPoint2::set_homogeneity)
         .function("toString", &csound::HarmonyPoint2::toString)
     ;
+    
+    emscripten::function("lt_harmony_point2", emscripten::select_overload<bool(const csound::HarmonyPoint2&,const csound::HarmonyPoint2&)>(&csound::operator<));
+
     // FINISHED
     emscripten::class_<csound::HarmonyInterpolationPoint2>("HarmonyInterpolationPoint2")
         .constructor<>()
@@ -822,10 +829,13 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("chord", &csound::Scale::chord)
         .function("degree", &csound::Scale::degree)
         .function("operator=", &csound::Scale::operator=)
+        ///.function("operator<", &csound::Scale::operator<)
         .function("getTypeName", &csound::Scale::getTypeName)
         .function("modulations", &csound::Scale::modulations)
         .function("modulations_for_voices", &csound::Scale::modulations_for_voices)
         .function("modulations_for_scale_types", &csound::Scale::modulations_for_scale_types)
+
+
         .function("relative_tonicizations", &csound::Scale::relative_tonicizations)
         .function("relative_tonicizations_for_scale_types", &csound::Scale::relative_tonicizations_for_scale_types)
         .function("secondary", &csound::Scale::secondary)
