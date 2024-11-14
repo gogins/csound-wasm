@@ -706,9 +706,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .property("homogeneity", &csound::HarmonyPoint2::get_homogeneity, &csound::HarmonyPoint2::set_homogeneity)
         .function("toString", &csound::HarmonyPoint2::toString)
     ;
-    
-    emscripten::function("harmony_point_2_lt", emscripten::select_overload<bool(const csound::HarmonyPoint2&,const csound::HarmonyPoint2&)>(&csound::operator<));
-
+ 
     // FINISHED
     emscripten::class_<csound::HarmonyInterpolationPoint2>("HarmonyInterpolationPoint2")
         .constructor<>()
