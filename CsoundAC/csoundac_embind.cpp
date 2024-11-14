@@ -221,9 +221,9 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     emscripten::function("notes", &csound::notes);
     emscripten::function("numerics_information", &csound::numerics_information);
     emscripten::function("operator==", &csound::operator==);
-    emscripten::function("lt_chord", emscripten::select_overload<bool(const csound::Chord&,const csound::Chord&)>(&csound::operator<));
-    emscripten::function("lt_scale", emscripten::select_overload<bool(const csound::Scale&,const csound::Scale&)>(&csound::operator<));
-    emscripten::function("lt_harmony_point_2", emscripten::select_overload<bool(const csound::HarmonyPoint2&,const csound::HarmonyPoint2&)>(&csound::operator<));
+    emscripten::function("chord_lt", emscripten::select_overload<bool(const csound::Chord&,const csound::Chord&)>(&csound::operator<));
+    emscripten::function("scale_lt", emscripten::select_overload<bool(const csound::Scale&,const csound::Scale&)>(&csound::operator<));
+    emscripten::function("harmony_point_2_lt", emscripten::select_overload<bool(const csound::HarmonyPoint2&,const csound::HarmonyPoint2&)>(&csound::operator<));
     emscripten::function("operator<=", &csound::operator<=);
     emscripten::function("operator>", &csound::operator>);
     emscripten::function("operator>=", &csound::operator>=);
@@ -613,7 +613,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         // NOT SUPPORTED
         //.property("voiceBeginnings", &csound::CounterpointNode::getVoiceBeginnings, &csound::CounterpointNode::setVoiceBeginnings, emscripten::allow_raw_pointers())
     ;
-    emscripten::function("lt_event", emscripten::select_overload<bool(const csound::Event&,const csound::Event&)>(&csound::operator<));
+    emscripten::function("event_lt", emscripten::select_overload<bool(const csound::Event&,const csound::Event&)>(&csound::operator<));
     // FINISHED
     emscripten::class_<csound::Event, emscripten::base<Eigen::VectorXd> >("Event")
         .constructor<>()
@@ -707,7 +707,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("toString", &csound::HarmonyPoint2::toString)
     ;
     
-    emscripten::function("lt_harmony_point2", emscripten::select_overload<bool(const csound::HarmonyPoint2&,const csound::HarmonyPoint2&)>(&csound::operator<));
+    emscripten::function("harmony_point_2_lt", emscripten::select_overload<bool(const csound::HarmonyPoint2&,const csound::HarmonyPoint2&)>(&csound::operator<));
 
     // FINISHED
     emscripten::class_<csound::HarmonyInterpolationPoint2>("HarmonyInterpolationPoint2")
@@ -834,8 +834,6 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("modulations", &csound::Scale::modulations)
         .function("modulations_for_voices", &csound::Scale::modulations_for_voices)
         .function("modulations_for_scale_types", &csound::Scale::modulations_for_scale_types)
-
-
         .function("relative_tonicizations", &csound::Scale::relative_tonicizations)
         .function("relative_tonicizations_for_scale_types", &csound::Scale::relative_tonicizations_for_scale_types)
         .function("secondary", &csound::Scale::secondary)
