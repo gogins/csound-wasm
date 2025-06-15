@@ -35,7 +35,7 @@ export CXX_FLAGS
 
 # Most emcc flags should be the same for both the 'compile' and the 'compile and link' passes.
 
-EMCC_FLAGS='-s ENVIRONMENT="web,webview,worker,node,shell" -s WASMFS -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1 -s FORCE_FILESYSTEM=1 -s INITIAL_MEMORY=268435456 -s LINKABLE=1 -s NO_EXIT_RUNTIME=0 -s SAFE_HEAP=0 -s WASM=1 -g '
+EMCC_FLAGS='-s ENVIRONMENT="web,node,shell" -s WASMFS -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1 -s FORCE_FILESYSTEM=1 -s INITIAL_MEMORY=268435456 -s LINKABLE=1 -s NO_EXIT_RUNTIME=0 -s SAFE_HEAP=0 -s WASM=1 -g '
 export EMCC_FLAGS
 
 rm -rf build-wasm
