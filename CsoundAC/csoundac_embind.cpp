@@ -828,6 +828,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("degree", &csound::Scale::degree)
         .function("operator=", &csound::Scale::operator=)
         ///.function("operator<", &csound::Scale::operator<)
+        .function("set_ratio", &csound::Scale::set_ratio)
         .function("from_scala", &csound::Scale::from_scala)
         .function("getTypeName", &csound::Scale::getTypeName)
         .function("modulations", &csound::Scale::modulations)
