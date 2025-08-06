@@ -382,6 +382,8 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("setOption", &CsoundEmbind::SetOption)
         .function("SetOutput", &CsoundEmbind::SetOutput)
         .function("setOutput", &CsoundEmbind::SetOutput)
+        .function("SetStringChannel", &CsoundEmbind::SetStringChannel)
+        .function("setStringChannel", &CsoundEmbind::SetStringChannel)
         .function("Start", &CsoundEmbind::Start)
         .function("start", &CsoundEmbind::Start)
         ;
