@@ -4,7 +4,7 @@ git submodule update --init --recursive --remote
 git submodule update --recursive
 git submodule status --recursive
 cd dependencies/csound-ac
-git checkout master
+git checkout chord-space-gluing
 git branch
 git pull
 cd ../..

@@ -1,5 +1,5 @@
 #!/bin/bash
-echo "Building csound-extended for WebAssembly..."
+echo "Building csound-wasm for WebAssembly..."
 
 export EMSCRIPTEN_ALLOW_NEWER_PYTHON=1
 
@@ -24,6 +24,8 @@ else
         exit
 fi
 
+rm -rf build-wasm
+sudo rm -rf dependencies/csound-ac/build-macos
 bash update-dependency-submodules.sh
 
 # Total memory for a WebAssembly module must be a multiple of 64 KB so...
@@ -73,7 +75,7 @@ em++ ${CXX_FLAGS} -O1 ${EMCC_FLAGS} --bind -s EXPORTED_RUNTIME_METHODS='["ccall"
 
 echo "Compiling CsoundAC..." 
 
-em++ ${CXX_FLAGS} ${EMCC_FLAGS} -I../dependencies -I../dependencies/csound-extended --bind -s EXPORT_ES6=0 -s EXPORT_NAME="createCsoundAC" -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "FS"]' -s MODULARIZE=1 -s RESERVED_FUNCTION_POINTERS=1 -s SINGLE_FILE=1 -s WASM_ASYNC_COMPILATION=1 --source-map-base . ../CsoundAC/csoundac_embind.cpp -I../dependencies/csound-ac -I${EIGEN_INCLUDE_ROOT} -I${BOOST_INCLUDE_ROOT} -I../deps/libsndfile-1.0.25/src -I.. CsoundAC/libcsoundac-static.a dependencies/csound/libcsound.a ../deps/lib/libsndfile.a ../deps/lib/libogg.a ../deps/lib/libvorbis.a ../deps/lib/libvorbisenc.a ../deps/lib/libvorbisfile.a ../deps/lib/libFLAC.a -o CsoundAC.js
+em++ ${CXX_FLAGS} ${EMCC_FLAGS} -I../dependencies -I../dependencies/csound-ac --bind -s EXPORT_ES6=0 -s EXPORT_NAME="createCsoundAC" -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "FS"]' -s MODULARIZE=1 -s RESERVED_FUNCTION_POINTERS=1 -s SINGLE_FILE=1 -s WASM_ASYNC_COMPILATION=1 --source-map-base . ../CsoundAC/csoundac_embind.cpp -I../dependencies/csound-ac -I${EIGEN_INCLUDE_ROOT} -I${BOOST_INCLUDE_ROOT} -I../deps/libsndfile-1.0.25/src -I.. CsoundAC/libcsoundac-static.a dependencies/csound/libcsound.a ../deps/lib/libsndfile.a ../deps/lib/libogg.a ../deps/lib/libvorbis.a ../deps/lib/libvorbisenc.a ../deps/lib/libvorbisfile.a ../deps/lib/libFLAC.a -o CsoundAC.js
 
 cd ..
 
