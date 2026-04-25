@@ -3,7 +3,11 @@
   "name": "Emscripten Csound",
   "description": "Use Emscripten Csound in NW.js",
   "version": "0.1.0",
-  "keywords": [ "Csound", "Emscripten", "node-webkit" ],
+  "keywords": [
+    "Csound",
+    "Emscripten",
+    "node-webkit"
+  ],
   "nodejs": false,
   "window": {
     "title": "Node-Webkit Emscripten Csound Demo",
@@ -20,5 +24,11 @@
   },
   "webkit": {
     "plugin": true
+  },
+  "devDependencies": {
+    "@csound/wasm-bin": "^7.0.0-beta21"
+  },
+  "scripts": {
+    "sync:csound": "node tools/sync-csound-wasm.mjs"
   }
 }
