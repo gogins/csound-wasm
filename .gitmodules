@@ -6,3 +6,5 @@
 	path = dependencies/csound-ac
 	url = https://github.com/gogins/csound-ac.git
 	branch = master
+[submodule "csound-ac"]
+	branch = master
