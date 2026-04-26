@@ -40,7 +40,7 @@ message("PORTSMF_DIRECTORY: ${PORTSMF_DIRECTORY}")
 add_library(csoundac-static 
 ${CSOUNDAC_SOURCE_DIRECTORY}/CppSound.cpp
 ${CSOUNDAC_SOURCE_DIRECTORY}/CsoundFile.cpp
-${CPPSOUND_SOURCE_DIRECTORY}/cs_glue.cpp
+## Try omitting: ${CPPSOUND_SOURCE_DIRECTORY}/cs_glue.cpp
 ${CSOUNDAC_SOURCE_DIRECTORY}/Cell.cpp
 ${CSOUNDAC_SOURCE_DIRECTORY}/ChordLindenmayer.cpp
 ${CSOUNDAC_SOURCE_DIRECTORY}/ChordSpace.cpp

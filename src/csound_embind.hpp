@@ -1,9 +1,6 @@
 /*
-    csound_web_audio.hpp:
 
     Copyright (C) 2017 Michael Gogins
-
-    This file is part of Csound.
 
     The Csound Library is free software; you can redistribute it
     and/or modify it under the terms of the GNU Lesser General Public
@@ -37,7 +34,7 @@
 #endif
 #endif
 #include "float-version.h"
-#include <csound.hpp>
+#include <CsoundAC/csound_threaded.hpp>
 #include <cstdio>
 #include <deque>
 #include <emscripten/bind.h>
@@ -89,7 +86,7 @@ static const int bytes_per_channel_message[8] = { 2, 2, 2, 2, 1, 1, 2, 0 };
  * std::string instead of const char *. Please keep methods in alphabetical 
  * order by name.
  */
-class CsoundEmbind : public Csound {
+class CsoundEmbind : public CsoundThreaded {
     std::deque<MidiData> midi_data_queue;
     bool midi_in_is_open = false;
 public:
@@ -101,13 +98,13 @@ public:
     virtual int CompileCsd(const std::string &filename) {
         int result = 0;
         result |= init_static_modules(csound);
-        result |= Csound::CompileCsd(filename.c_str());
+        result |= CsoundThreaded::CompileCsd(filename.c_str());
         return result;
     }
     virtual int CompileCsdText(const std::string &csd) {
         int result = 0;
         result |= init_static_modules(csound);
-        result |= Csound::CompileCsdText(csd.c_str());
+        result |= CsoundThreaded::CompileCsdText(csd.c_str());
         return result;
     }
     virtual int CompileOrc(const std::string &orc) {
@@ -127,17 +124,41 @@ public:
         return GetEnv(name.c_str());
     }
     virtual std::string GetInputName_() {
-        auto value = GetInputName();
+        const char *value = nullptr;    
+#if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7      
+     auto params = GetParams();
+        if (params == nullptr) {
+            return "";
+        }
+        value = params->infilename;
         if (value == nullptr) {
             return "";
         }
+#else
+        value = GetInputName();
+        if (value == nullptr) {
+            return "";
+        }
+#endif
         return value;;
     }
     virtual std::string GetOutputName_() {
-        auto value = GetOutputName();
+        const char *value = nullptr;    
+#if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7      
+     auto params = GetParams();
+        if (params == nullptr) {
+            return "";
+        }
+        value = params->outfilename;
         if (value == nullptr) {
             return "";
         }
+#else
+        value = GetOutputName();
+        if (value == nullptr) {
+            return "";
+        }
+#endif
         return value;;
     }
     virtual val GetSpinView() {
@@ -154,28 +175,33 @@ public:
         return buffer;
     }
     virtual void InputMessage(const std::string &sco) {
-        Csound::InputMessage(sco.c_str());
+        CsoundThreaded::InputMessage(sco.c_str());
     }
     virtual int KillInstance(MYFLT p1, const std::string &insname_, int mode, bool release) {
+#if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7
+          Message("CsoundEmbind::KillInstance() is not implemented in Csound 7. Use Csound code to do this. The signature of this method is retained for API compatibility.\n"); 
+          return 0;
+#else  
         // Actually we ignore all string instrument names. The signature 
         // is retained for API compatibility.
         auto result = csoundKillInstance(GetCsound(), p1, nullptr, mode, release);
         return result;
+#endif
     }
     virtual void Message(const std::string &message) {
         Csound::Message(message.c_str());
     }
     virtual int ReadScore(const std::string &sco) {
-        return Csound::ReadScore(sco.c_str());
-    }
+        return CsoundThreaded::ReadScore(sco.c_str());
+}
     virtual void SetChannel(const std::string &name, MYFLT value) {
         return Csound::SetChannel(name.c_str(), value);
     }
     virtual void SetStringChannel(const std::string &name, const std::string &value) {
         Csound::SetStringChannel(name.c_str(), (char *)value.c_str());
     }
-    virtual void SetInput(const std::string &input) {
-        return Csound::SetInput(input.c_str());
+    virtual int SetInput(const std::string &input) {
+        return CsoundThreaded::SetInput(input.c_str());
     }
     virtual void SetMessageCallback(const emscripten::val &csound_message_callback_) {
         csound_message_callback = csound_message_callback_;
@@ -183,13 +209,22 @@ public:
     virtual int SetOption(const std::string &value) {
         return Csound::SetOption(value.c_str());
     }
-    virtual void SetOutput(const std::string &output, const std::string &type_, const std::string &format) {
-        return Csound::SetOutput(output.c_str(), type_.c_str(), format.c_str());
+    virtual int SetOutput(const std::string &output, const std::string &type_, const std::string &format) {
+        return CsoundThreaded::SetOutput(output.c_str(), type_.c_str(), format.c_str());
     }
     virtual int Start() {
         int result = 0;
         result |= Csound::Start();
         return result;
+    }
+    virtual void SetHostImplementedAudioIO(int state) {
+        CsoundThreaded::SetHostImplementedAudioIO(state);
+    }
+    virtual MYFLT TableGet(int table, int index) {
+        return CsoundThreaded::TableGet(table, index);
+    }
+    virtual void TableSet(int table, int index, MYFLT value) {
+        CsoundThreaded::TableSet(table, index, value);
     }
     int MidiInOpenCallback(CSOUND *, void **, const char *) {
         midi_data_queue.clear();
@@ -250,10 +285,10 @@ public:
         return static_cast<CsoundEmbind *>(host_data)->MidiReadCallback(csound_, user_data, buffer, bytes_to_read);
     }
     virtual void InitializeHostMidi() {
-        Csound::SetHostImplementedMIDIIO(1);
-        Csound::SetExternalMidiInOpenCallback(&CsoundEmbind::MidiInOpenCallback_);
-        Csound::SetExternalMidiReadCallback(&CsoundEmbind::MidiReadCallback_);
-        Csound::SetExternalMidiInCloseCallback(&CsoundEmbind::MidiInCloseCallback_);
+        CsoundThreaded::SetHostImplementedMIDIIO(1);
+        CsoundThreaded::SetExternalMidiInOpenCallback(&CsoundEmbind::MidiInOpenCallback_);
+        CsoundThreaded::SetExternalMidiReadCallback(&CsoundEmbind::MidiReadCallback_);
+        CsoundThreaded::SetExternalMidiInCloseCallback(&CsoundEmbind::MidiInCloseCallback_);
     }
     virtual void MidiEventIn(unsigned char status, unsigned char data1, unsigned char data2) {
         if (midi_in_is_open) {
@@ -288,20 +323,25 @@ void nodefs_mount() {
 EMSCRIPTEN_BINDINGS(csound_web_audio) {  
     function("nodefs_mount", &nodefs_mount);
     class_<Csound>("Csound")
-        .function("Cleanup", &Csound::Cleanup)
-        .function("cleanup", &Csound::Cleanup)
+        .function("Cleanup", &CsoundThreaded::Cleanup)
+        .function("cleanup", &CsoundThreaded::Cleanup)
         .function("Get0dBFS", &Csound::Get0dBFS)
         .function("get0dBFS", &Csound::Get0dBFS)
+#if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7  
+        .function("GetAPIVersion", &Csound::GetVersion)
+        .function("getAPIVersion", &Csound::GetVersion)
+#else
         .function("GetAPIVersion", &Csound::GetAPIVersion)
         .function("getAPIVersion", &Csound::GetAPIVersion)
+#endif
         .function("GetCurrentTimeSamples", &Csound::GetCurrentTimeSamples)
         .function("getCurrentTimeSamples", &Csound::GetCurrentTimeSamples)
         .function("GetKsmps", &Csound::GetKsmps)
         .function("getKsmps", &Csound::GetKsmps)
-        .function("GetNchnls", &Csound::GetNchnls)
-        .function("getNchnls", &Csound::GetNchnls)
-        .function("GetNchnlsInput", &Csound::GetNchnlsInput)
-        .function("getNchnlsInput", &Csound::GetNchnlsInput)
+        .function("GetNchnls", &CsoundThreaded::GetNchnls)
+        .function("getNchnls", &CsoundThreaded::GetNchnls)
+        .function("GetNchnlsInput", &CsoundThreaded::GetNchnlsInput)
+        .function("getNchnlsInput", &CsoundThreaded::GetNchnlsInput)
         .function("GetScoreOffsetSeconds", &Csound::GetScoreOffsetSeconds)
         .function("getScoreOffsetSeconds", &Csound::GetScoreOffsetSeconds)
         .function("GetScoreTime", &Csound::GetScoreTime)
@@ -312,29 +352,30 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("getVersion", &Csound::GetVersion)
         .function("IsScorePending", &Csound::IsScorePending)
         .function("isScorePending", &Csound::IsScorePending)
-        .function("Perform", select_overload<int()>(&Csound::Perform))
-        .function("perform", select_overload<int()>(&Csound::Perform))
+        .function("Perform", select_overload<int()>(&CsoundThreaded::Perform))
+        .function("perform", select_overload<int()>(&CsoundThreaded::Perform))
         .function("PerformKsmps", select_overload<int()>(&Csound::PerformKsmps))
         .function("performKsmps", select_overload<int()>(&Csound::PerformKsmps))
         .function("Reset", &Csound::Reset)
         .function("reset", &Csound::Reset)
         .function("RewindScore", &Csound::RewindScore)
         .function("rewindScore", &Csound::RewindScore)
-        .function("SetHostImplementedAudioIO", &Csound::SetHostImplementedAudioIO)
+        .function("SetHostImplementedAudioIO", &CsoundThreaded::SetHostImplementedAudioIO)
+        .function("setHostImplementedAudioIO", &CsoundThreaded::SetHostImplementedAudioIO)
         .function("SetScoreOffsetSeconds", &Csound::SetScoreOffsetSeconds)
         .function("setScoreOffsetSeconds", &Csound::SetScoreOffsetSeconds)
         .function("SetScorePending", &Csound::SetScorePending)
         .function("setScorePending", &Csound::SetScorePending)
         .function("Start", &Csound::Start)
         .function("start", &Csound::Start)
-        .function("Stop", &Csound::Stop)
-        .function("stop", &Csound::Stop)
-        .function("TableGet", &Csound::TableGet)
-        .function("tableGet", &Csound::TableGet)
+        .function("Stop", &CsoundThreaded::Stop)
+        .function("stop", &CsoundThreaded::Stop)
+        .function("TableGet", &CsoundThreaded::TableGet)
+        .function("tableGet", &CsoundThreaded::TableGet)
         .function("TableLength", &Csound::TableLength)
         .function("tableLength", &Csound::TableLength)
-        .function("TableSet", &Csound::TableSet)
-        .function("tableSet", &Csound::TableSet)
+        .function("TableSet", &CsoundThreaded::TableSet)
+        .function("tableSet", &CsoundThreaded::TableSet)
         ;
     class_<CsoundEmbind, base<Csound> >("CsoundEmbind")
         .constructor<>()
@@ -374,6 +415,8 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("setChannel", &CsoundEmbind::SetChannel)
         .function("SetControlChannel", &CsoundEmbind::SetChannel)
         .function("setControlChannel", &CsoundEmbind::SetChannel)
+        .function("SetHostImplementedAudioIO", &CsoundEmbind::SetHostImplementedAudioIO)
+        .function("setHostImplementedAudioIO", &CsoundEmbind::SetHostImplementedAudioIO)
         .function("SetInput", &CsoundEmbind::SetInput)
         .function("setInput", &CsoundEmbind::SetInput)
         .function("SetMessageCallback", &CsoundEmbind::SetMessageCallback)
@@ -386,6 +429,10 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("setStringChannel", &CsoundEmbind::SetStringChannel)
         .function("Start", &CsoundEmbind::Start)
         .function("start", &CsoundEmbind::Start)
+        .function("TableGet", &CsoundEmbind::TableGet)
+        .function("tableGet", &CsoundEmbind::TableGet)
+        .function("TableSet", &CsoundEmbind::TableSet)
+        .function("tableSet", &CsoundEmbind::TableSet)
         ;
 }
 

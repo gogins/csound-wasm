@@ -1,12 +1,17 @@
 cmake_minimum_required(VERSION 3.28+)
 
-project(csound-extended)
+project(csound-wasm)
 
 # WebAssembly is little-endian. These variables work around 
 # emscripten-core/emscripten#14346
 
 set(CMAKE_C_BYTE_ORDER LITTLE_ENDIAN)
 set(CMAKE_CXX_BYTE_ORDER LITTLE_ENDIAN)
+
+## Doesn't seem to work with emcmake.
+## include("$ENV{HOME}/cmake/FindCsoundHomeFirst.cmake")
+set(CSOUND_VERSION_MAJOR 7)
+add_compile_definitions(CSOUND_VERSION_MAJOR=${CSOUND_VERSION_MAJOR})
 
 set(Boost_INCLUDE_DIR "${BOOST_ROOT}/include")
 set(Eigen_INCLUDE_DIR "${EIGEN_ROOT}/include/eigen3")
@@ -52,6 +57,7 @@ include_directories("${Eigen_INCLUDE_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies")
 include_directories("${CMAKE_SOURCE_DIR}/dependencies/csound")
 include_directories("${CMAKE_SOURCE_DIR}/csound-ac")
+include_directories("${CMAKE_SOURCE_DIR}/csound-ac/CsoundAC")
 #~ # Csound plugin opcodes, we only use some. Not doing now.
 #~ set(CSOUND_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/dependencies/csound/include")
 #~ add_subdirectory(dependencies/plugins)

@@ -32,12 +32,12 @@ bash update-dependency-submodules.sh
 # 1024 * 64 = 65536 is 64 KB
 # 65536 * 1024 * 4 is 268435456
 
-CXX_FLAGS="-v -std=c++17 -O2 -Wno-implicit-int-float-conversion -DINIT_STATIC_MODULES=1 -g "
+CXX_FLAGS="-v -std=c++17 -O2 -Wno-implicit-int-float-conversion -DCSOUND_VERSION_MAJOR=7 -DINIT_STATIC_MODULES=1 -g "
 export CXX_FLAGS
 
 # Most emcc flags should be the same for both the 'compile' and the 'compile and link' passes.
 
-EMCC_FLAGS='-s ENVIRONMENT="web,node,shell" -s WASMFS -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1 -s FORCE_FILESYSTEM=1 -s INITIAL_MEMORY=268435456 -s LINKABLE=1 -s NO_EXIT_RUNTIME=0 -s SAFE_HEAP=0 -s WASM=1 -g '
+EMCC_FLAGS='-s ENVIRONMENT=["web","node","shell"] -s WASMFS -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS=1 -s FORCE_FILESYSTEM=1 -s INITIAL_MEMORY=268435456 -s LINKABLE=1 -s NO_EXIT_RUNTIME=0 -s SAFE_HEAP=0 -s WASM=1 -g '
 export EMCC_FLAGS
 
 rm -rf build-wasm
@@ -67,7 +67,7 @@ emmake make csoundac-static -j6 VERBOSE=1
 
 echo "Compiling csound_embind..."
 
-em++ ${CXX_FLAGS} ${EMCC_FLAGS} -iquote ../src -I../dependencies -I../dependencies/csound/include -I../dependencies/csound/H -I../dependencies/csound/interfaces -I../deps/libsndfile-1.0.25/src -Iinclude -I${EIGEN_INCLUDE_ROOT} -c ../src/csound_embind.cpp --bind 
+em++ ${CXX_FLAGS} ${EMCC_FLAGS} -iquote ../src -I../dependencies/csound-ac -I../dependencies -I../dependencies/csound/include -I../dependencies/csound/H -I../dependencies/csound/interfaces -I../deps/libsndfile-1.0.25/src -Iinclude -I${EIGEN_INCLUDE_ROOT} -c ../src/csound_embind.cpp --bind 
 
 echo "Compiling CsoundAudioProcessor..."
 
