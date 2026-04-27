@@ -378,7 +378,7 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("GetNchnlsInput", &CsoundThreaded::GetNchnlsInput)
         .function("getNchnlsInput", &CsoundThreaded::GetNchnlsInput)
         .function("getNchnlsInput", &CsoundThreaded::GetNchnlsInput)
-        .function("Get0", &Csound::GetScoreOffsetSeconds)
+        .function("GetScoreOffsetSeconds", &Csound::GetScoreOffsetSeconds)
         .function("getScoreOffsetSeconds", &Csound::GetScoreOffsetSeconds)
         .function("GetScoreTime", &Csound::GetScoreTime)
         .function("getScoreTime", &Csound::GetScoreTime)
