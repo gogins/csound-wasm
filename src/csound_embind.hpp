@@ -164,6 +164,16 @@ public:
     virtual MYFLT Get0dBFS() {
         return CsoundThreaded::Get0dBFS();
     }
+    virtual int GetAPIVersion() {
+#if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7
+        return Csound::GetVersion();
+#else
+        return Csound::GetAPIVersion();
+#endif
+    }
+    virtual long GetCurrentTimeSamples() {
+        return Csound::GetCurrentTimeSamples();
+    }
     virtual std::string GetOutputName_() {
         const char *value = nullptr;    
 #if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7      
@@ -183,6 +193,15 @@ public:
 #endif
         return value;;
     }
+    virtual MYFLT GetScoreOffsetSeconds() {
+        return Csound::GetScoreOffsetSeconds();
+    }
+    virtual MYFLT GetScoreTime() {
+        return Csound::GetScoreTime();
+    }
+    virtual MYFLT GetSr() {
+        return Csound::GetSr();
+    }
     virtual val GetSpinView() {
         int count = GetKsmps() * GetNchnlsInput();
         return val(typed_memory_view(count, GetSpin()));
@@ -195,6 +214,12 @@ public:
         char buffer[0x200];
         Csound::GetStringChannel(name.c_str(), buffer);
         return buffer;
+    }
+    virtual int GetVersion() {
+        return Csound::GetVersion();
+    }
+    virtual int IsScorePending() {
+        return Csound::IsScorePending();
     }
     virtual void InputMessage(const std::string &sco) {
         CsoundThreaded::InputMessage(sco.c_str());
@@ -225,6 +250,9 @@ public:
     virtual void Reset() {
         CsoundThreaded::Reset();
     }
+    virtual void RewindScore() {
+        Csound::RewindScore();
+    }
     virtual void SetChannel(const std::string &name, MYFLT value) {
         return Csound::SetChannel(name.c_str(), value);
     }
@@ -243,6 +271,12 @@ public:
     virtual int SetOutput(const std::string &output, const std::string &type_, const std::string &format) {
         return CsoundThreaded::SetOutput(output.c_str(), type_.c_str(), format.c_str());
     }
+    virtual void SetScoreOffsetSeconds(MYFLT seconds) {
+        Csound::SetScoreOffsetSeconds(seconds);
+    }
+    virtual void SetScorePending(bool is_pending) {
+        Csound::SetScorePending(is_pending);
+    }
     virtual int Start() {
         int result = 0;
         result |= Csound::Start();
@@ -256,6 +290,9 @@ public:
     }
     virtual MYFLT TableGet(int table, int index) {
         return CsoundThreaded::TableGet(table, index);
+    }
+    virtual int TableLength(int table) {
+        return Csound::TableLength(table);
     }
     virtual void TableSet(int table, int index, MYFLT value) {
         CsoundThreaded::TableSet(table, index, value);
@@ -426,10 +463,14 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("compileOrc", &CsoundEmbind::CompileOrc)
         .function("EvalCode", &CsoundEmbind::EvalCode)
         .function("evalCode", &CsoundEmbind::EvalCode)
+        .function("GetAPIVersion", &CsoundEmbind::GetAPIVersion)
+        .function("getAPIVersion", &CsoundEmbind::GetAPIVersion)
         .function("GetChannel", &CsoundEmbind::GetControlChannel)
         .function("getChannel", &CsoundEmbind::GetControlChannel)
         .function("GetControlChannel", &CsoundEmbind::GetControlChannel)
         .function("getControlChannel", &CsoundEmbind::GetControlChannel)
+        .function("GetCurrentTimeSamples", &CsoundEmbind::GetCurrentTimeSamples)
+        .function("getCurrentTimeSamples", &CsoundEmbind::GetCurrentTimeSamples)
         .function("GetEnv", &CsoundEmbind::GetEnv)
         .function("getEnv", &CsoundEmbind::GetEnv)
         .function("GetInputName", &CsoundEmbind::GetInputName_)
@@ -438,6 +479,12 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("get0dBFS", &CsoundEmbind::Get0dBFS)
         .function("GetOutputName", &CsoundEmbind::GetOutputName_)
         .function("getOutputName", &CsoundEmbind::GetOutputName_)
+        .function("GetScoreOffsetSeconds", &CsoundEmbind::GetScoreOffsetSeconds)
+        .function("getScoreOffsetSeconds", &CsoundEmbind::GetScoreOffsetSeconds)
+        .function("GetScoreTime", &CsoundEmbind::GetScoreTime)
+        .function("getScoreTime", &CsoundEmbind::GetScoreTime)
+        .function("GetSr", &CsoundEmbind::GetSr)
+        .function("getSr", &CsoundEmbind::GetSr)
         .function("GetSpin", &CsoundEmbind::GetSpinView)
         .function("GetSpout", &CsoundEmbind::GetSpoutView)
         .function("GetKsmps", &CsoundEmbind::GetKsmps)
@@ -448,7 +495,11 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("getNchnlsInput", &CsoundEmbind::GetNchnlsInput)
         .function("GetStringChannel", &CsoundEmbind::GetStringChannel)
         .function("getStringChannel", &CsoundEmbind::GetStringChannel)
+        .function("GetVersion", &CsoundEmbind::GetVersion)
+        .function("getVersion", &CsoundEmbind::GetVersion)
         .function("InitializeHostMidi", &CsoundEmbind::InitializeHostMidi)
+        .function("IsScorePending", &CsoundEmbind::IsScorePending)
+        .function("isScorePending", &CsoundEmbind::IsScorePending)
         .function("InputMessage", &CsoundEmbind::InputMessage)
         .function("inputMessage", &CsoundEmbind::InputMessage)
         .function("Message", &CsoundEmbind::Message)
@@ -464,6 +515,8 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("readScore", &CsoundEmbind::ReadScore)
         .function("Reset", &CsoundEmbind::Reset)
         .function("reset", &CsoundEmbind::Reset)
+        .function("RewindScore", &CsoundEmbind::RewindScore)
+        .function("rewindScore", &CsoundEmbind::RewindScore)
         .function("SetChannel", &CsoundEmbind::SetChannel)
         .function("setChannel", &CsoundEmbind::SetChannel)
         .function("SetControlChannel", &CsoundEmbind::SetChannel)
@@ -478,6 +531,10 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("setOption", &CsoundEmbind::SetOption)
         .function("SetOutput", &CsoundEmbind::SetOutput)
         .function("setOutput", &CsoundEmbind::SetOutput)
+        .function("SetScoreOffsetSeconds", &CsoundEmbind::SetScoreOffsetSeconds)
+        .function("setScoreOffsetSeconds", &CsoundEmbind::SetScoreOffsetSeconds)
+        .function("SetScorePending", &CsoundEmbind::SetScorePending)
+        .function("setScorePending", &CsoundEmbind::SetScorePending)
         .function("SetStringChannel", &CsoundEmbind::SetStringChannel)
         .function("setStringChannel", &CsoundEmbind::SetStringChannel)
         .function("Start", &CsoundEmbind::Start)
@@ -486,9 +543,11 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("stop", &CsoundEmbind::Stop)
         .function("TableGet", &CsoundEmbind::TableGet)
         .function("tableGet", &CsoundEmbind::TableGet)
+        .function("TableLength", &CsoundEmbind::TableLength)
+        .function("tableLength", &CsoundEmbind::TableLength)
         .function("TableSet", &CsoundEmbind::TableSet)
         .function("tableSet", &CsoundEmbind::TableSet)
         ;
 }
 
-#endif  // __CSOUND_WEBAUDIO_HPP__
+#endif  // __CSOUND_EMBIND_HPP__

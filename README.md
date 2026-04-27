@@ -16,23 +16,23 @@ on a permissions icon to the left of the URL).
 THis directory builds and packages csound-wasm (Csound for WebAssembly), 
 which includes my WebAssembly build of [Csound](https://github.com/csound/csound) 
 and a WebAssembly build of my [Csound Algorithmic Composition](https://github.com/gogins/csound-ac) 
-library.
+library. This project has now been ported to Csouond version 7.
 
 This build replaces `CsoundObj.js` from the core Csound repository with my 
 own WebAssembly build of Csound, compiled using the Emscripten LLVM 
 toolchain.
 
-Although I have tried to use `CsoundObj` in my compositions, I find that 
-my own build is more stable and easier to use for my purposes. That is because 
-my WebAssembly version of the Csound API is much closer to the original C++ 
-interface, supports printing Csound messages from JavaScript, and appears to 
-be more resilient and reliable. As long as this project is easy to maintain, I 
+The canonical `@csound/browser` and `@csound/web_audio` projects also offer 
+a WebAssembly build of Csound. I am retaining and will continue to maintain 
+`csound-wasm` because my version of the Csound API is much closer to the 
+original C++ interface, supports printing Csound messages from JavaScript, can 
+be used after dropping two files into a static Web site without requiring 
+rollups, and also remains backwardly compatible with earlier compositions that 
+used this library. As long as this project is easy to maintain, I 
 will continue to support it and use it.
 
 This build uses the new WebAudio AudioWorklet for superior performance with 
 fewer audio issues. Features include:
-
-* A number of C++ plugin opcodes (here, statically linked).
 
 * A new JavaScript interface to Csound that follows, as exactly as possible,
   the interface defined by the Csound class in `csound.hpp` and also
@@ -95,6 +95,12 @@ The main build scripts are:
    and so on.
 
 ## Release Notes
+
+### [v1.0.0-beta]
+
+ - Ported to Csound version 7.
+ 
+ - Simplified build system.
 
 ### [v0.3.3](https://github.com/gogins/csound-wasm/commits/v0.3.2)
 
