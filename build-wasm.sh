@@ -32,7 +32,8 @@ bash update-dependency-submodules.sh
 # 1024 * 64 = 65536 is 64 KB
 # 65536 * 1024 * 4 is 268435456
 
-CXX_FLAGS="-v -std=c++17 -O2 -Wno-implicit-int-float-conversion -DCSOUND_VERSION_MAJOR=7 -DINIT_STATIC_MODULES=1 -g "
+## CXX_FLAGS="-v -std=c++17 -O2 -Wno-implicit-int-float-conversion -DCSOUND_VERSION_MAJOR=7 -DINIT_STATIC_MODULES=1 -g "
+CXX_FLAGS="-v -std=c++17 -O2 -Wno-implicit-int-float-conversion -DCSOUND_VERSION_MAJOR=7 -g "
 export CXX_FLAGS
 
 # Most emcc flags should be the same for both the 'compile' and the 'compile and link' passes.

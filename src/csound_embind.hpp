@@ -95,21 +95,30 @@ public:
         Csound::SetHostData(this);
         csoundSetDefaultMessageCallback(csoundMessageCallback_);
     };
+    virtual int32_t Cleanup() {
+        return CsoundThreaded::Cleanup();
+    }
     virtual int CompileCsd(const std::string &filename) {
         int result = 0;
+#if defined(INIT_STATIC_MODULES) && INIT_STATIC_MODULES == 1
         result |= init_static_modules(csound);
+#endif
         result |= CsoundThreaded::CompileCsd(filename.c_str());
         return result;
     }
     virtual int CompileCsdText(const std::string &csd) {
         int result = 0;
+#if defined(INIT_STATIC_MODULES) && INIT_STATIC_MODULES == 1
         result |= init_static_modules(csound);
+#endif
         result |= CsoundThreaded::CompileCsdText(csd.c_str());
         return result;
     }
     virtual int CompileOrc(const std::string &orc) {
         int result = 0;
+#if defined(INIT_STATIC_MODULES) && INIT_STATIC_MODULES == 1
         result |= init_static_modules(csound);
+#endif
         result |= Csound::CompileOrc(orc.c_str());
         return result;
     }
@@ -141,6 +150,19 @@ public:
         }
 #endif
         return value;;
+    }
+    virtual int32_t GetKsmps()
+    {
+        return Csound::GetKsmps();
+    }
+    virtual int32_t GetNchnls() {
+        return CsoundThreaded::GetNchnls();
+    }
+    virtual int32_t GetNchnlsInput() {
+        return CsoundThreaded::GetNchnlsInput();
+    }
+    virtual MYFLT Get0dBFS() {
+        return CsoundThreaded::Get0dBFS();
     }
     virtual std::string GetOutputName_() {
         const char *value = nullptr;    
@@ -191,9 +213,18 @@ public:
     virtual void Message(const std::string &message) {
         Csound::Message(message.c_str());
     }
+    virtual int32_t Perform() {
+        return CsoundThreaded::Perform();
+    }
+    virtual int32_t PerformKsmps() {
+        return Csound::PerformKsmps();
+    }
     virtual int ReadScore(const std::string &sco) {
         return CsoundThreaded::ReadScore(sco.c_str());
-}
+    }    
+    virtual void Reset() {
+        CsoundThreaded::Reset();
+    }
     virtual void SetChannel(const std::string &name, MYFLT value) {
         return Csound::SetChannel(name.c_str(), value);
     }
@@ -216,6 +247,9 @@ public:
         int result = 0;
         result |= Csound::Start();
         return result;
+    }
+    virtual void Stop() {
+        CsoundThreaded::Stop();
     }
     virtual void SetHostImplementedAudioIO(int state) {
         CsoundThreaded::SetHostImplementedAudioIO(state);
@@ -322,6 +356,7 @@ void nodefs_mount() {
  */
 EMSCRIPTEN_BINDINGS(csound_web_audio) {  
     function("nodefs_mount", &nodefs_mount);
+#if 0
     class_<Csound>("Csound")
         .function("Cleanup", &CsoundThreaded::Cleanup)
         .function("cleanup", &CsoundThreaded::Cleanup)
@@ -342,7 +377,8 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("getNchnls", &CsoundThreaded::GetNchnls)
         .function("GetNchnlsInput", &CsoundThreaded::GetNchnlsInput)
         .function("getNchnlsInput", &CsoundThreaded::GetNchnlsInput)
-        .function("GetScoreOffsetSeconds", &Csound::GetScoreOffsetSeconds)
+        .function("getNchnlsInput", &CsoundThreaded::GetNchnlsInput)
+        .function("Get0", &Csound::GetScoreOffsetSeconds)
         .function("getScoreOffsetSeconds", &Csound::GetScoreOffsetSeconds)
         .function("GetScoreTime", &Csound::GetScoreTime)
         .function("getScoreTime", &Csound::GetScoreTime)
@@ -377,8 +413,11 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("TableSet", &CsoundThreaded::TableSet)
         .function("tableSet", &CsoundThreaded::TableSet)
         ;
-    class_<CsoundEmbind, base<Csound> >("CsoundEmbind")
+#endif
+    class_<CsoundEmbind>("CsoundEmbind")
         .constructor<>()
+        .function("Cleanup", &CsoundEmbind::Cleanup )
+        .function("cleanup", &CsoundEmbind::Cleanup)
         .function("CompileCsd", &CsoundEmbind::CompileCsd)
         .function("compileCsd", &CsoundEmbind::CompileCsd)
         .function("CompileCsdText", &CsoundEmbind::CompileCsdText)
@@ -395,10 +434,18 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("getEnv", &CsoundEmbind::GetEnv)
         .function("GetInputName", &CsoundEmbind::GetInputName_)
         .function("getInputName", &CsoundEmbind::GetInputName_)
+        .function("Get0dBFS", &CsoundEmbind::Get0dBFS)
+        .function("get0dBFS", &CsoundEmbind::Get0dBFS)
         .function("GetOutputName", &CsoundEmbind::GetOutputName_)
         .function("getOutputName", &CsoundEmbind::GetOutputName_)
         .function("GetSpin", &CsoundEmbind::GetSpinView)
         .function("GetSpout", &CsoundEmbind::GetSpoutView)
+        .function("GetKsmps", &CsoundEmbind::GetKsmps)
+        .function("getKsmps", &CsoundEmbind::GetKsmps)
+        .function("GetNchnls", &CsoundEmbind::GetNchnls)
+        .function("getNchnls", &CsoundEmbind::GetNchnls)
+        .function("GetNchnlsInput", &CsoundEmbind::GetNchnlsInput)
+        .function("getNchnlsInput", &CsoundEmbind::GetNchnlsInput)
         .function("GetStringChannel", &CsoundEmbind::GetStringChannel)
         .function("getStringChannel", &CsoundEmbind::GetStringChannel)
         .function("InitializeHostMidi", &CsoundEmbind::InitializeHostMidi)
@@ -409,8 +456,14 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("killInstance", &CsoundEmbind::KillInstance)
         .function("message", &CsoundEmbind::Message)
         .function("MidiEventIn", &CsoundEmbind::MidiEventIn)
+        .function("Perform", &CsoundEmbind::Perform)
+        .function("perform", &CsoundEmbind::Perform)
+        .function("PerformKsmps", &CsoundEmbind::PerformKsmps)
+        .function("performKsmps", &CsoundEmbind::PerformKsmps)
         .function("ReadScore", &CsoundEmbind::ReadScore)
         .function("readScore", &CsoundEmbind::ReadScore)
+        .function("Reset", &CsoundEmbind::Reset)
+        .function("reset", &CsoundEmbind::Reset)
         .function("SetChannel", &CsoundEmbind::SetChannel)
         .function("setChannel", &CsoundEmbind::SetChannel)
         .function("SetControlChannel", &CsoundEmbind::SetChannel)
@@ -429,6 +482,8 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("setStringChannel", &CsoundEmbind::SetStringChannel)
         .function("Start", &CsoundEmbind::Start)
         .function("start", &CsoundEmbind::Start)
+        .function("Stop", &CsoundEmbind::Stop)
+        .function("stop", &CsoundEmbind::Stop)
         .function("TableGet", &CsoundEmbind::TableGet)
         .function("tableGet", &CsoundEmbind::TableGet)
         .function("TableSet", &CsoundEmbind::TableSet)

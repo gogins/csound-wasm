@@ -277,7 +277,7 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
         this.output_name = this.csound.GetOutputName();
         if (this.output_name.startsWith("dac") || this.input_name.startsWith("adc")) {
             this.is_realtime = true;                        
-            this.csound.SetHostImplementedAudioIO(1, 0);
+            this.csound.SetHostImplementedAudioIO(1);
             this.csound.InitializeHostMidi();
             result = this.csound.Start();
             if (this.input_name.startsWith("adc")) {
@@ -307,7 +307,7 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
                         if (result != 0) {
                             this.is_playing = false;
                             this.csound.Stop();
-                            this.csound.Cleanup();
+                            // this.csound.Cleanup();
                             this.csound.Reset();
                             this.csound.Message("CsoundAudioProcessor returns 'false'.\n");
                             return true;
