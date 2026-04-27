@@ -7,7 +7,7 @@ print(__doc__)
 import shutil
 import os
 
-dist = os.path.join("csound-wasm", "dist-wasm")
+dist = os.path.join("csound-wasm", "dist")
 home = os.path.expanduser("~")
 source_directory = os.path.join(home, dist )
 os.chdir(source_directory)
