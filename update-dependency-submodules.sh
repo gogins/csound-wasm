@@ -8,13 +8,13 @@ git submodule update --init --recursive
 
     # Make sure origin exists and fetch the branch tip
     git remote -v
-    git fetch --prune origin +refs/heads/chord-space-gluing:refs/remotes/origin/chord-space-gluing
+    git fetch --prune origin +refs/heads/master:refs/remotes/origin/master
 
     # Create/update local branch to point at the remote branch tip
-    git checkout -B chord-space-gluing origin/chord-space-gluing
+    git checkout -B main origin/master
 
     # Hard reset to ensure you are exactly at the latest remote commit
-    git reset --hard origin/chord-space-gluing
+    git reset --hard origin/master
 
     git status
     git log -1 --oneline
@@ -23,8 +23,8 @@ git submodule update --init --recursive
 (
     cd dependencies/csound
     git fetch --prune origin
-    git checkout -B csound6 origin/csound6
-    git reset --hard origin/csound6
+    git checkout -B develop origin/develop
+    git reset --hard origin/develop
     git log -1 --oneline
 )
 

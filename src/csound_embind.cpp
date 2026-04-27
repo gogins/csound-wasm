@@ -38,4 +38,3 @@
 #include "csound_embind.hpp"
 
 static CsoundEmbind csound_embind;
-
