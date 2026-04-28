@@ -381,7 +381,8 @@ function escape_html(text)
             let CM = CsoundAC.chordForName("C+");
             CM = CM.T(-4.);
             console.log(CM.information());
-            console.log(CM.information_debug(-1));
+            // Currently would crash.
+            // console.log(CM.information_debug(-1));
             draw_fundamental_domain("OP");
         }());
 
@@ -880,9 +881,10 @@ function escape_html(text)
             }
             on_picked_chord(new_chord) {
                 this.render();
-                csound_message_callback("Picked chord:\n" + new_chord.toString() + "\n");
                 this.prior_chord = this.current_chord;
                 this.current_chord = new_chord;
+                csound_message_callback("Prior chord:\n" + (this.prior_chord ? this.prior_chord.toString() : "None") + "\n");
+                csound_message_callback("Picked chord:\n" + (this.current_chord ? this.current_chord.toString() : "None") + "\n");
                 this.play_chord();
             }
             prepareScene3D() {

@@ -10,9 +10,10 @@ include(FetchContent)
 
 set(CSOUND_WASM_DIST_DIR "${CMAKE_SOURCE_DIR}/dist" CACHE PATH "Generated runtime artifacts")
 set(CSOUND_WASM_WEB_DIR  "${CMAKE_SOURCE_DIR}/web"  CACHE PATH "Served runtime directory")
+set(CSOUND_WASM_ARTIFACT_DIR "${CMAKE_BINARY_DIR}/artifacts" CACHE PATH "Generated build artifacts before staging")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CSOUND_WASM_DIST_DIR}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CSOUND_WASM_DIST_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CSOUND_WASM_ARTIFACT_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CSOUND_WASM_ARTIFACT_DIR}")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib")
 
 # WebAssembly is little-endian. These variables work around
@@ -154,6 +155,7 @@ add_subdirectory(CsoundAC)
 
 if(TARGET csound-static)
     add_dependencies(csound-static ${CSOUND_WASM_SNDFILE_TARGET})
+    target_compile_options(csoundac-static PRIVATE -O1)
 endif()
 
 # -----------------------------------------------------------------------------
@@ -162,7 +164,7 @@ endif()
 
 add_custom_target(prepare_runtime_dirs
     COMMAND "${CMAKE_COMMAND}" -E rm -rf "${CSOUND_WASM_DIST_DIR}" "${CSOUND_WASM_WEB_DIR}"
-    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CSOUND_WASM_DIST_DIR}" "${CSOUND_WASM_WEB_DIR}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${CSOUND_WASM_DIST_DIR}" "${CSOUND_WASM_WEB_DIR}" "${CSOUND_WASM_ARTIFACT_DIR}"
     COMMENT "Removing and recreating dist/ and web/"
 )
 
@@ -191,12 +193,11 @@ add_executable(CsoundAudioProcessor
     src/csound_embind.cpp
 )
 
-add_dependencies(CsoundAudioProcessor prepare_runtime_dirs)
 
 set_target_properties(CsoundAudioProcessor PROPERTIES
     OUTPUT_NAME "CsoundAudioProcessor"
     SUFFIX ".js"
-    RUNTIME_OUTPUT_DIRECTORY "${CSOUND_WASM_DIST_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY "${CSOUND_WASM_ARTIFACT_DIR}"
 )
 
 target_compile_options(CsoundAudioProcessor PRIVATE
@@ -235,20 +236,23 @@ add_executable(CsoundACWasm
     CsoundAC/csoundac_embind.cpp
 )
 
-add_dependencies(CsoundACWasm prepare_runtime_dirs)
 
 set_target_properties(CsoundACWasm PROPERTIES
     OUTPUT_NAME "CsoundAC"
     SUFFIX ".js"
-    RUNTIME_OUTPUT_DIRECTORY "${CSOUND_WASM_DIST_DIR}"
+    RUNTIME_OUTPUT_DIRECTORY "${CSOUND_WASM_ARTIFACT_DIR}"
 )
 
-set(CSOUND_AC_WASM_OUTPUT "${CSOUND_WASM_DIST_DIR}/CsoundAC.wasm")
+set(CSOUND_AC_WASM_OUTPUT "${CSOUND_WASM_ARTIFACT_DIR}/CsoundAC.wasm")
 
 target_compile_options(CsoundACWasm PRIVATE
-    ${CSOUND_WASM_COMMON_COMPILE_OPTIONS}
-    -O2
+    -O1
+    -DNDEBUG
+    -Wno-implicit-int-float-conversion
 )
+
+# Keep this target at -O1 even when the global build type contributes -O2.
+set_property(TARGET CsoundACWasm APPEND_STRING PROPERTY COMPILE_FLAGS " -O1")
 
 target_include_directories(CsoundACWasm PRIVATE
     "${CMAKE_SOURCE_DIR}"
@@ -318,12 +322,14 @@ endforeach()
 
 add_custom_target(stage_dist ALL
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different ${CSOUND_WASM_STATIC_FILES} "${CSOUND_WASM_DIST_DIR}"
+    COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:CsoundAudioProcessor>" "${CSOUND_WASM_DIST_DIR}/CsoundAudioProcessor.js"
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:CsoundACWasm>" "${CSOUND_WASM_DIST_DIR}/CsoundAC.js"
     COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${CSOUND_AC_WASM_OUTPUT}" "${CSOUND_WASM_DIST_DIR}/CsoundAC.wasm"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/dependencies/csound-ac/patches" "${CSOUND_WASM_DIST_DIR}/patches"
     COMMAND "${CMAKE_COMMAND}" -E copy_directory "${CMAKE_SOURCE_DIR}/dependencies/csound-ac/silencio" "${CSOUND_WASM_DIST_DIR}/silencio"
     COMMAND /bin/sh -c "find '${CSOUND_WASM_DIST_DIR}' -maxdepth 1 -name '--*' -exec rm -rf {} +"
     DEPENDS
+        prepare_runtime_dirs
         CsoundAudioProcessor
         CsoundACWasm
     COMMENT "Staging runtime files into dist/"
