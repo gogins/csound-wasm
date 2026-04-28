@@ -1,32 +1,17 @@
-#!/bin/bash 
-echo "Updating all submodules for csound-wasm..."
+#!/usr/bin/env bash
+set -euo pipefail
 
+echo "Updating submodules..."
 git submodule update --init --recursive
 
-(
-    cd dependencies/csound-ac
+# CsoundAC should track master.
+git -C dependencies/csound-ac fetch --prune origin
+git -C dependencies/csound-ac checkout -B master origin/master
+git -C dependencies/csound-ac reset --hard origin/master
+git -C dependencies/csound-ac log -1 --oneline
 
-    # Make sure origin exists and fetch the branch tip
-    git remote -v
-    git fetch --prune origin +refs/heads/master:refs/remotes/origin/master
-
-    # Create/update local branch to point at the remote branch tip
-    git checkout -B main origin/master
-
-    # Hard reset to ensure you are exactly at the latest remote commit
-    git reset --hard origin/master
-
-    git status
-    git log -1 --oneline
-)
-
-(
-    cd dependencies/csound
-    git fetch --prune origin
-    git checkout -B develop origin/develop
-    git reset --hard origin/develop
-    git log -1 --oneline
-)
-
-pwd
-echo "Finished updating all submodules for csound-wasm."
+# Csound 7 development currently comes from Csound's develop branch.
+git -C dependencies/csound fetch --prune origin
+git -C dependencies/csound checkout -B develop origin/develop
+git -C dependencies/csound reset --hard origin/develop
+git -C dependencies/csound log -1 --oneline

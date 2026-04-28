@@ -1,87 +1,44 @@
-#!/bin/bash
+#!/usr/bin/env bash
+clear
+set -euo pipefail
+
 echo "Building csound-wasm for WebAssembly..."
 
 export EMSCRIPTEN_ALLOW_NEWER_PYTHON=1
+source "${EMSDK:-$HOME/emsdk}/emsdk_env.sh"
 
-source ~/emsdk/emsdk_env.sh
-echo "OSTYPE: $OSTYPE."
-echo "EMSCRIPTEN_ROOT: $EMSCRIPTEN_ROOT."
-echo "Python version (must be 3 or higher):"
-python3 --version
+case "${OSTYPE}" in
+    linux*)
+        eigen_root_default="/usr"
+        boost_root_default="/usr"
+        ;;
+    darwin*)
+        eigen_root_default="/opt/homebrew/opt/eigen"
+        boost_root_default="/opt/homebrew/opt/boost"
+        ;;
+    *)
+        echo "Unsupported platform: ${OSTYPE}" >&2
+        exit 1
+        ;;
+esac
 
-if [[ "$OSTYPE" == "linux"* ]]; then
-        echo "Building on Linux..."
-        export EIGEN_INCLUDE_ROOT="/usr/include/eigen3"
-        export BOOST_ROOT="/usr/include/boost"
-        export BOOST_INCLUDE_ROOT="/usr/include/boost"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "Building on macOS..."
-        export EIGEN_INCLUDE_ROOT="/opt/homebrew/opt/eigen/include/eigen3"
-        export BOOST_ROOT="/opt/homebrew/opt/boost"
-        export BOOST_INCLUDE_ROOT="/opt/homebrew/opt/boost/include" 
-else
-        echo "Unsupported platform!"
-        exit
-fi
+cmake_config_args=(
+    -S .
+    -B build-wasm
+    -G "Unix Makefiles"
+    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    -DEIGEN_ROOT="${EIGEN_ROOT:-${eigen_root_default}}"
+    -DBOOST_ROOT="${BOOST_ROOT:-${boost_root_default}}"
+)
 
-rm -rf build-wasm
-sudo rm -rf dependencies/csound-ac/build-macos
-bash update-dependency-submodules.sh
-
-# Total memory for a WebAssembly module must be a multiple of 64 KB so...
-# 1024 * 64 = 65536 is 64 KB
-# 65536 * 1024 * 4 is 268435456
-
-CXX_FLAGS="-std=c++17 -O3 -DNDEBUG -Wno-implicit-int-float-conversion -DCSOUND_VERSION_MAJOR=7"
-export CXX_FLAGS
-
-# Most emcc flags should be the same for both the 'compile' and the 'compile and link' passes.
-
-EMCC_FLAGS='-s ENVIRONMENT=["web","node","shell"] -s WASMFS -s ERROR_ON_UNDEFINED_SYMBOLS=0 -s ALLOW_MEMORY_GROWTH=0 -s ASSERTIONS=0 -s FORCE_FILESYSTEM=1 -s INITIAL_MEMORY=268435456 -s SAFE_HEAP=0 -s WASM=1'
-export EMCC_FLAGS
-
-rm -rf build-wasm
-mkdir -p build-wasm
+# Csound expects this generated/version header in the include tree for this build.
 cp -f dependencies/csound-ac/CsoundAC/version.h dependencies/csound/include/version.h
 
-cd build-wasm
-rm -f CMakeCache.txt
+emcmake cmake "${cmake_config_args[@]}"
+cmake --build build-wasm --parallel "${BUILD_JOBS:-6}"
 
-# Haven't figured out how to get this work yet, may never.
-# echo "Packaging resources..." 
-# 
-# cp -r ../csound-assets/ .
-# python $EMSCRIPTEN_ROOT/tools/file_packager.py csound_assets.data --preload csound-assets --js-output=csound_assets.js
+ls -ll dist
+ls -ll web
 
-echo "Configuring to build static libraries..."
-
-emcmake cmake -G "Unix Makefiles" -DBUILD_STATIC_LIBRARY=1 -DUSE_COMPILER_OPTIMIZATIONS=0 -DBIG_ENDIAN=0 -DISBIGENDIAN=0 -DIS_BIG_ENDIAN=0 -DEIGEN_ROOT="/opt/homebrew/opt/eigen" -DBOOST_ROOT="${BOOST_ROOT}" -DCSOUND_INCLUDE_DIR="../dependencies/csound" -DSNDFILE_H_PATH="../deps/include" -DSNDFILE_LIBRARY="../deps/lib/libsndfile.a" -Wno-dev -S .. -B .
-
-echo "Building Csound library..."
-emmake make csound-static -j6 VERBOSE=1 
-## cmake --build csound-static -j6 VERBOSE=1
-
-echo "Building CsoundAC static library..."
-emmake make csoundac-static -j6 VERBOSE=1 
-## cmake --build csoundac-static -j6 VERBOSE=1 
-
-echo "Compiling csound_embind..."
-
-em++ ${CXX_FLAGS} ${EMCC_FLAGS} -iquote ../src -I../dependencies/csound-ac -I../dependencies -I../dependencies/csound/include -I../dependencies/csound/H -I../dependencies/csound/interfaces -I../deps/libsndfile-1.0.25/src -Iinclude -I${EIGEN_INCLUDE_ROOT} -c ../src/csound_embind.cpp --bind 
-
-echo "Compiling CsoundAudioProcessor..."
-
-em++ ${CXX_FLAGS} -O1 ${EMCC_FLAGS} --bind -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "FS"]' -s RESERVED_FUNCTION_POINTERS=2 -s SINGLE_FILE=1 -s WASM_ASYNC_COMPILATION=0 --source-map-base . --pre-js ../src/CsoundAudioProcessor_prejs.js --post-js ../src/CsoundAudioProcessor_postjs.js csound_embind.o dependencies/csound/libcsound.a ../deps/lib/libsndfile.a ../deps/lib/libogg.a ../deps/lib/libvorbis.a ../deps/lib/libvorbisenc.a ../deps/lib/libvorbisfile.a ../deps/lib/libFLAC.a -o CsoundAudioProcessor.js
-
-echo "Compiling CsoundAC..." 
-
-em++ ${CXX_FLAGS} ${EMCC_FLAGS} -I../dependencies -I../dependencies/csound-ac --bind -s EXPORT_ES6=0 -s EXPORT_NAME="createCsoundAC" -s EXPORTED_RUNTIME_METHODS='["ccall", "cwrap", "FS"]' -s MODULARIZE=1 -s RESERVED_FUNCTION_POINTERS=1 -s SINGLE_FILE=1 -s WASM_ASYNC_COMPILATION=1 --source-map-base . ../CsoundAC/csoundac_embind.cpp -I../dependencies/csound-ac -I${EIGEN_INCLUDE_ROOT} -I${BOOST_INCLUDE_ROOT} -I../deps/libsndfile-1.0.25/src -I.. CsoundAC/libcsoundac-static.a dependencies/csound/libcsound.a ../deps/lib/libsndfile.a ../deps/lib/libogg.a ../deps/lib/libvorbis.a ../deps/lib/libvorbisenc.a ../deps/lib/libvorbisfile.a ../deps/lib/libFLAC.a -o CsoundAC.js
-
-cd ..
-
-find deps -name "*.a" -ls
-find build-wasm -name "*.a" -ls
-
-bash release-wasm.sh
-
-echo "Finished building csound-extended for WebAssembly."
+echo "Built artifacts are in dist/ and have been copied to web/."

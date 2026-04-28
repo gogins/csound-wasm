@@ -1,16 +1,32 @@
-#!/bin/bash 
-echo "Bringing in assets from manual and cmask..."
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Bringing in optional Csound assets..."
 rm -rf csound-assets
 mkdir -p csound-assets
-cp /usr/local/share/samples/* csound-assets/
-find dependencies/csound-ac/dependencies/cmask/examples -name "*.aif"  -exec cp -v {} csound-assets/ \;
-find ~/csound-extended-manual/manual/examples -name "*.aiff" -exec cp -v {} csound-assets/ \;
-find ~/csound-extended-manual/manual/examples -name "*.wav" -exec cp -v {} csound-assets/ \;
-find ~/csound-extended-manual/manual/examples -name "*.sf2" -exec cp -v {} csound-assets/ \;
-find ~/csound-extended-manual/manual/examples -name "128*" -exec cp -v {} csound-assets/ \;
-find ~/csound-extended-manual/manual/examples -name "*.ats" -exec cp -v {} csound-assets/ \;
-find ~/csound-extended-manual/manual/examples -name "*.lpc" -exec cp -v {} csound-assets/ \;
-find ~/csound-extended-manual/manual/examples -name "*.mid" -exec cp -v {} csound-assets/ \;
-find ~/csound-extended-manual/manual/examples -name "*.matrix" -exec cp -v {} csound-assets/ \;
+
+copy_matches()
+{
+    local root="$1"
+    local pattern="$2"
+
+    if [[ -d "${root}" ]]; then
+        find "${root}" -name "${pattern}" -exec cp -v {} csound-assets/ \;
+    fi
+}
+
+if [[ -d /usr/local/share/samples ]]; then
+    cp /usr/local/share/samples/* csound-assets/ || true
+fi
+
+copy_matches dependencies/csound-ac/dependencies/cmask/examples "*.aif"
+copy_matches "$HOME/csound-extended-manual/manual/examples" "*.aiff"
+copy_matches "$HOME/csound-extended-manual/manual/examples" "*.wav"
+copy_matches "$HOME/csound-extended-manual/manual/examples" "*.sf2"
+copy_matches "$HOME/csound-extended-manual/manual/examples" "128*"
+copy_matches "$HOME/csound-extended-manual/manual/examples" "*.ats"
+copy_matches "$HOME/csound-extended-manual/manual/examples" "*.lpc"
+copy_matches "$HOME/csound-extended-manual/manual/examples" "*.mid"
+copy_matches "$HOME/csound-extended-manual/manual/examples" "*.matrix"
+
 ls -ll csound-assets
-echo "Finished bringing in assets from manual and cmask."

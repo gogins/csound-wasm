@@ -16,20 +16,20 @@ on a permissions icon to the left of the URL).
 THis directory builds and packages csound-wasm (Csound for WebAssembly), 
 which includes my WebAssembly build of [Csound](https://github.com/csound/csound) 
 and a WebAssembly build of my [Csound Algorithmic Composition](https://github.com/gogins/csound-ac) 
-library. This project has now been ported to Csouond version 7.
+library. 
 
-This build replaces `CsoundObj.js` from the core Csound repository with my 
-own WebAssembly build of Csound, compiled using the Emscripten LLVM 
-toolchain.
+This project has now been ported to Csouond version 7. The Csound class in 
+this build is compatible with the Csound API from both Csound version 6 and 
+Csound version 7.
 
 The canonical `@csound/browser` and `@csound/web_audio` projects also offer 
 a WebAssembly build of Csound. I am retaining and will continue to maintain 
 `csound-wasm` because my version of the Csound API is much closer to the 
 original C++ interface, supports printing Csound messages from JavaScript, can 
-be used after dropping two files into a static Web site without requiring 
-rollups, and also remains backwardly compatible with earlier compositions that 
-used this library. As long as this project is easy to maintain, I 
-will continue to support it and use it.
+be used after simply dropping two files into a static Web site without 
+requiring rollups, and also remains backwardly compatible with earlier 
+compositions that used this library. As long as this project is easy to 
+maintain, I will continue to support it and use it.
 
 This build uses the new WebAudio AudioWorklet for superior performance with 
 fewer audio issues. Features include:
@@ -85,12 +85,10 @@ files from these packages are used here.
 
 The main build scripts are:
 
-1. `build-prequisites-wasm.sh`, which re-installs the Emscripten SDK, 
-   downloads libsndfile and its dependencies, and builds libsndfile. This step 
-   is quite time-consuming, but you should only have to run it once. 
+1. `build-prequisites-wasm.sh`, which installs or updates the Emscripten SDK.
    
-2. `build-wasm.sh`, which updates submodules, builds Csound for WASM, builds 
-   CsoundAC for WASM, and creates a release package that also includes 
+2. `build-wasm.sh`, which updates submodules, builds libsndfile, Csound for WASM, 
+   and CsoundAC for WASM, and creates a release package that also includes 
    examples, Csound instrument definitions, miscellaneous JavaScript files, 
    and so on.
 
@@ -99,8 +97,12 @@ The main build scripts are:
 ### [v1.0.0-beta]
 
  - Ported to Csound version 7.
+
+ - It is now possible to optimize the WASM build for speed.
  
- - Simplified build system.
+ - Consolidated many build scripts into CMakeLists.txt.
+
+ - Changed directory layout.
 
 ### [v0.3.3](https://github.com/gogins/csound-wasm/commits/v0.3.2)
 

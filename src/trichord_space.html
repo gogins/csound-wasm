@@ -309,7 +309,28 @@ var csound_ = null;
     csound_message_callback(CsoundAC.chord_space_version() + "\n");
     let CM = CsoundAC.chordForName("C+");
     CM = CM.T(-4.);
-    console.log(CM.information());
+    /// console.log(CM.information());
+    console.log("chord object:", CM);
+    console.log("typeof chord:", typeof CM);
+    console.log("chord deleted?", CM.isDeleted?.());
+
+    try {
+        console.log("toString:", CM.toString());
+    } catch (e) {
+        console.error("toString failed:", e);
+    }
+
+    try {
+        console.log("information_debug:", CM.information_debug(-1));
+    } catch (e) {
+        console.error("information_debug failed:", e);
+    }
+
+    try {
+        console.log("information:", CM.information());
+    } catch (e) {
+        console.error("information failed:", e);
+    }
     console.log(CM.information_debug(-1));
     draw_fundamental_domain("OP");
 }());

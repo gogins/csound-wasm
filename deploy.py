@@ -1,43 +1,43 @@
-#!python3
-'''
-Deploying CsoundAudioNode, CsoundAC, and some extras to dependent projects...
-'''
-print(__doc__)
+#!/usr/bin/env python3
+"""
+Deploy files from csound-wasm/dist to dependent local projects.
+"""
 
+from pathlib import Path
 import shutil
-import os
 
-dist = os.path.join("csound-wasm", "dist")
-home = os.path.expanduser("~")
-source_directory = os.path.join(home, dist )
-os.chdir(source_directory)
-print('Changed directory to "{}"\n'.format(os.getcwd()))
+repo_root = Path(__file__).resolve().parent
+source_directory = repo_root / "dist"
 
-targets = []
-targets.append(os.path.join(home, "cloud-5"))
-targets.append(os.path.join(home, "csound-ac/silencio/js"))
-# targets.append(os.path.join(home, "csound-android/CsoundForAndroid/CsoundForAndroid/CsoundApplication/src/main/assets/examples/Gogins"))
-targets.append(os.path.join(home, "csound-examples/docs"))
-targets.append(os.path.join(home, "gogins.github.io"))
-# targets.append(os.path.join(home, "michael.gogins.studio/music/NYCEMF-2024"))
+if not source_directory.is_dir():
+    raise SystemExit(f"Missing {source_directory}. Build first with ./build-wasm.sh.")
 
-deployables = '''CsoundAC.js
-CsoundAC.wasm.debug.wasm
-CsoundAudioNode.js
-CsoundAudioProcessor.js
-CsoundAudioProcessor.wasm.debug.wasm
-csound_loader.js
-minimal.html
-trichord_space.html'''
+targets = [
+    Path.home() / "cloud-5",
+    Path.home() / "csound-ac" / "silencio" / "js",
+    Path.home() / "csound-examples" / "docs",
+    Path.home() / "gogins.github.io",
+]
+
+names = [
+    "CsoundAC.js",
+    "CsoundAudioNode.js",
+    "CsoundAudioProcessor.js",
+    "csound_loader.js",
+    "minimal.html",
+    "trichord_space.html",
+    "patches",
+    "silencio",
+]
 
 for target in targets:
-    for deployable in deployables.splitlines():
-        print ('copying {} to {}'.format(deployable, target))
-        if os.path.isfile(deployable):
-            shutil.copy(deployable, target)
-        if os.path.isdir(deployable):
-            target_dir = os.path.join(target, deployable)
-            shutil.copytree(deployable, target_dir, dirs_exist_ok=True)
-    files = os.listdir(target)
-    for file in files:
-        print('    {}: {}'.format(target, file))
+    target.mkdir(parents=True, exist_ok=True)
+    for name in names:
+        source = source_directory / name
+        destination = target / name
+        if source.is_file():
+            print(f"copying {source} to {destination}")
+            shutil.copy2(source, destination)
+        elif source.is_dir():
+            print(f"copying {source} to {destination}")
+            shutil.copytree(source, destination, dirs_exist_ok=True)

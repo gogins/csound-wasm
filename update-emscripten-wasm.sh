@@ -1,14 +1,12 @@
-clear
-echo "Updating the Emscripten toolchain..."
-export WEBASSEMBLY_HOME=`pwd`
-echo "WEBASSEMBLY_HOME: $WEBASSEMBLY_HOME"
-cd ~/emsdk
-echo "Updating Emscripten and LLVM..."
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Updating Emscripten toolchain..."
+repo_root="$(pwd)"
+cd "${EMSDK:-$HOME/emsdk}"
 git pull
 ./emsdk install latest
 ./emsdk activate latest
 source ./emsdk_env.sh
-export EMSCRIPTEN_ROOT=$EMSCRIPTEN
-cd $WEBASSEMBLY_HOME
-echo "Updated the Emscripten toolchain."
-echo
+cd "${repo_root}"
+echo "Updated Emscripten toolchain."
