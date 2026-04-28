@@ -299,6 +299,8 @@ set(CSOUND_WASM_STATIC_FILES
     "${CMAKE_SOURCE_DIR}/src/CsoundAudioNode.js"
     "${CMAKE_SOURCE_DIR}/src/dat.gui.js"
     "${CMAKE_SOURCE_DIR}/src/minimal.html"
+    "${CMAKE_SOURCE_DIR}/src/sprintf.js"
+    "${CMAKE_SOURCE_DIR}/src/tinycolor.js"
     "${CMAKE_SOURCE_DIR}/src/three.js"
     "${CMAKE_SOURCE_DIR}/src/TrackballControls.js"
     "${CMAKE_SOURCE_DIR}/src/trichord_space.html"
