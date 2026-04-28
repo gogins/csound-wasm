@@ -247,6 +247,7 @@ set(CSOUND_AC_WASM_OUTPUT "${CSOUND_WASM_DIST_DIR}/CsoundAC.wasm")
 
 target_compile_options(CsoundACWasm PRIVATE
     ${CSOUND_WASM_COMMON_COMPILE_OPTIONS}
+    -O2
 )
 
 target_include_directories(CsoundACWasm PRIVATE
@@ -292,6 +293,7 @@ set(CSOUND_WASM_STATIC_FILES
     "${CMAKE_SOURCE_DIR}/README.md"
     "${CMAKE_SOURCE_DIR}/src/csound_loader.js"
     "${CMAKE_SOURCE_DIR}/src/CsoundAudioNode.js"
+    "${CMAKE_SOURCE_DIR}/src/dat.gui.js"
     "${CMAKE_SOURCE_DIR}/src/minimal.html"
     "${CMAKE_SOURCE_DIR}/src/trichord_space.html"
 )
@@ -300,6 +302,7 @@ set(CSOUND_WASM_STATIC_FILES
 # Optional browser helper files therefore must live in src/ or static/, not web/.
 foreach(optional_static_file
     "${CMAKE_SOURCE_DIR}/src/ace.js"
+    "${CMAKE_SOURCE_DIR}/src/favicon.ico"
     "${CMAKE_SOURCE_DIR}/src/csound-browser-test.html"
     "${CMAKE_SOURCE_DIR}/src/osc.min.js"
     "${CMAKE_SOURCE_DIR}/src/player.html"
