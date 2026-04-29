@@ -246,7 +246,7 @@ set_target_properties(CsoundACWasm PROPERTIES
 set(CSOUND_AC_WASM_OUTPUT "${CSOUND_WASM_ARTIFACT_DIR}/CsoundAC.wasm")
 
 target_compile_options(CsoundACWasm PRIVATE
-    -O1
+    -O3
     -DNDEBUG
     -Wno-implicit-int-float-conversion
 )

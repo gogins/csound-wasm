@@ -21,6 +21,7 @@ targets = [
 
 names = [
     "CsoundAC.js",
+    "CsoundAC.wasm",
     "CsoundAudioNode.js",
     "CsoundAudioProcessor.js",
     "csound_loader.js",

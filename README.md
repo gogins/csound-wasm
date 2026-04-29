@@ -18,15 +18,15 @@ which includes my WebAssembly build of [Csound](https://github.com/csound/csound
 and a WebAssembly build of my [Csound Algorithmic Composition](https://github.com/gogins/csound-ac) 
 library. 
 
-This project has now been ported to Csouond version 7. The Csound class in 
-this build is compatible with the Csound API from both Csound version 6 and 
-Csound version 7.
+This project has now been ported to Csound version 7. The Csound class in 
+this build is compatible with the Csound API from Csound 6, and much is 
+compatible with the API from Csound 7.
 
 The canonical `@csound/browser` and `@csound/web_audio` projects also offer 
 a WebAssembly build of Csound. I am retaining and will continue to maintain 
 `csound-wasm` because my version of the Csound API is much closer to the 
 original C++ interface, supports printing Csound messages from JavaScript, can 
-be used after simply dropping two files into a static Web site without 
+be used after simply dropping a few files into a static Web site without 
 requiring rollups, and also remains backwardly compatible with earlier 
 compositions that used this library. As long as this project is easy to 
 maintain, I will continue to support it and use it.
@@ -94,13 +94,13 @@ The main build scripts are:
 
 ## Release Notes
 
-### [v1.0.0-beta]
+### [v4.0.0-beta]
 
  - Ported to Csound version 7.
 
  - It is now possible to optimize the WASM build for speed.
  
- - Consolidated many build scripts into CMakeLists.txt.
+ - Many build scripts have been re-implemented in CMakeLists.txt.
 
  - Changed directory layout.
 
