@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 
 project(csound-wasm LANGUAGES C CXX)
 
+set(CSOUND_WEB_ASSEMBLY_VERSION "4.0.0-beta" CACHE STRING "Csound WebAssembly version")
+
 include(FetchContent)
 
 # -----------------------------------------------------------------------------
@@ -252,7 +254,7 @@ target_compile_options(CsoundACWasm PRIVATE
 )
 
 # Keep this target at -O1 even when the global build type contributes -O2.
-set_property(TARGET CsoundACWasm APPEND_STRING PROPERTY COMPILE_FLAGS " -O1")
+# set_property(TARGET CsoundACWasm APPEND_STRING PROPERTY COMPILE_FLAGS " -O1")
 
 target_include_directories(CsoundACWasm PRIVATE
     "${CMAKE_SOURCE_DIR}"
@@ -346,8 +348,8 @@ add_custom_target(stage_web ALL
     COMMENT "Mirroring dist/ into web/"
 )
 
-add_custom_target(package_wasm
-    COMMAND "${CMAKE_COMMAND}" -E tar cfv "${CMAKE_SOURCE_DIR}/csound-wasm.zip" --format=zip .
+add_custom_target(package_wasm ALL
+    COMMAND "${CMAKE_COMMAND}" -E tar cfv "${CMAKE_SOURCE_DIR}/csound-wasm-${CSOUND_WEB_ASSEMBLY_VERSION}.zip" --format=zip .
     DEPENDS stage_web
     WORKING_DIRECTORY "${CSOUND_WASM_DIST_DIR}"
     COMMENT "Creating csound-wasm.zip from dist/"
