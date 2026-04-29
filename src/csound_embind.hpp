@@ -244,8 +244,17 @@ public:
     virtual int32_t PerformKsmps() {
         return Csound::PerformKsmps();
     }
+    // Here, we override CsoundThreaded::ReadScore() to provide an immediate 
+    // ReadScore method that is not enqueued for later execution by the 
+    // performance thread routine, since in the WebAssembly environment there 
+    // is no separate performance thread routine. The signature of this method 
+    // is retained for API compatibility with CsoundThreaded, but the 
+    // semantics are more like Csound::ReadScore() in the single-threaded C++ 
+    //wrapper in csound.hpp.   
     virtual int ReadScore(const std::string &sco) {
-        return CsoundThreaded::ReadScore(sco.c_str());
+        // Message("CsoundEmbind::ReadScore() called with:\n" + sco + "\n");
+        csoundEventString(GetCsound(), sco.c_str(), 1);
+        return 0;
     }    
     virtual void Reset() {
         CsoundThreaded::Reset();
