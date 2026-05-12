@@ -27,7 +27,6 @@ cmake_config_args=(
     -B build-wasm
     -G "Unix Makefiles"
     -DCMAKE_BUILD_TYPE=Release
-    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     -DEIGEN_ROOT="${EIGEN_ROOT:-${eigen_root_default}}"
     -DBOOST_ROOT="${BOOST_ROOT:-${boost_root_default}}"
 )

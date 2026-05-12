@@ -25,7 +25,7 @@
 #    however invalidate any other reasons why the library or executable
 #    file might be covered by the GNU Lesser General Public License.
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.10)
 project(CsoundAC)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_COMPILER "emcc")

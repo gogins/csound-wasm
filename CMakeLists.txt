@@ -131,7 +131,14 @@ set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Build type" FORCE)
 set(HAVE_BIG_ENDIAN OFF CACHE BOOL "Have big-endian architecture" FORCE)
 set(CMAKE_16BIT_TYPE "unsigned short" CACHE STRING "16-bit type" FORCE)
 set(HAVE_STRTOD_L OFF CACHE BOOL "Have strtod_l" FORCE)
-set(BUILD_STATIC_LIBRARY ON CACHE BOOL "Build Csound as a static library" FORCE)
+# With Emscripten, Csound still adds the primary `csound` library; a second
+# `csound-static` archive reuses OUTPUT_NAME "csound" and Ninja reports duplicate
+# rules for libcsound.a. Use the main library target for final WASM links only.
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    set(BUILD_STATIC_LIBRARY OFF CACHE BOOL "Build Csound as a static library" FORCE)
+else()
+    set(BUILD_STATIC_LIBRARY ON CACHE BOOL "Build Csound as a static library" FORCE)
+endif()
 set(HAVE_ATOMIC_BUILTIN OFF CACHE BOOL "Have atomic builtins" FORCE)
 set(HAVE_SPRINTF_L OFF CACHE BOOL "Have sprintf_l" FORCE)
 set(USE_GETTEXT OFF CACHE BOOL "Use gettext" FORCE)
@@ -156,7 +163,17 @@ add_subdirectory(dependencies/csound)
 add_subdirectory(CsoundAC)
 
 if(TARGET csound-static)
+    set(CSOUND_WASM_CSOUND_TARGET csound-static)
+elseif(TARGET csound)
+    set(CSOUND_WASM_CSOUND_TARGET csound)
+else()
+    message(FATAL_ERROR "Expected csound or csound-static target from dependencies/csound")
+endif()
+
+if(TARGET csound-static)
     add_dependencies(csound-static ${CSOUND_WASM_SNDFILE_TARGET})
+endif()
+if(TARGET csoundac-static)
     target_compile_options(csoundac-static PRIVATE -O1)
 endif()
 
@@ -218,7 +235,7 @@ target_include_directories(CsoundAudioProcessor PRIVATE
 )
 
 target_link_libraries(CsoundAudioProcessor PRIVATE
-    csound-static
+    ${CSOUND_WASM_CSOUND_TARGET}
     ${CSOUND_WASM_SNDFILE_TARGET}
 )
 
@@ -267,7 +284,7 @@ target_include_directories(CsoundACWasm PRIVATE
 
 target_link_libraries(CsoundACWasm PRIVATE
     csoundac-static
-    csound-static
+    ${CSOUND_WASM_CSOUND_TARGET}
     ${CSOUND_WASM_SNDFILE_TARGET}
 )
 
