@@ -211,6 +211,33 @@ add_custom_target(prepare_runtime_dirs
 # Browser-facing Embind artifacts.
 # -----------------------------------------------------------------------------
 
+# Emscripten 3.1.x: settings.js defines ENVIRONMENT as a string ('web,webview,...').
+# Emscripten 5.0+: ENVIRONMENT is a list (['web', ...]); -sENVIRONMENT=web,worker
+# then fails type-check ("expects list but got str"). JSON array works on 5.x;
+# on 3.1.x JSON parses to a list and fails ("expects str but got list"). Branch
+# on the toolchain version. SHELL: keeps each -s...=... as one linker argv.
+set(CSOUND_WASM_ENVIRONMENT_LINK_FLAG "SHELL:-sENVIRONMENT=web,worker")
+set(CSOUND_WASM_EXPORTED_RUNTIME_METHODS_FLAG "SHELL:-sEXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\",\"FS\"]")
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    if(NOT EMSCRIPTEN_VERSION AND DEFINED ENV{EMSCRIPTEN})
+        set(_ems_ver_file "$ENV{EMSCRIPTEN}/emscripten-version.txt")
+        if(EXISTS "${_ems_ver_file}")
+            file(STRINGS "${_ems_ver_file}" EMSCRIPTEN_VERSION LIMIT_COUNT 1)
+            string(STRIP "${EMSCRIPTEN_VERSION}" EMSCRIPTEN_VERSION)
+        endif()
+    endif()
+    if(EMSCRIPTEN_VERSION VERSION_GREATER_EQUAL "5.0.0")
+        set(CSOUND_WASM_ENVIRONMENT_LINK_FLAG "SHELL:-sENVIRONMENT=[\"web\",\"worker\"]")
+    else()
+        if(NOT EMSCRIPTEN_VERSION)
+            message(WARNING "csound-wasm: EMSCRIPTEN_VERSION unset; using pre-5.0 ENVIRONMENT=-s form (comma string). If linking fails, use emcmake from emsdk 5.x or set EMSCRIPTEN in the environment.")
+        endif()
+        set(CSOUND_WASM_ENVIRONMENT_LINK_FLAG "SHELL:-sENVIRONMENT=web,worker")
+    endif()
+    set(CSOUND_WASM_EXPORTED_RUNTIME_METHODS_FLAG "SHELL:-sEXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\",\"FS\"]")
+    message(STATUS "csound-wasm: Emscripten '${EMSCRIPTEN_VERSION}' — ${CSOUND_WASM_ENVIRONMENT_LINK_FLAG}")
+endif()
+
 set(CSOUND_WASM_COMMON_COMPILE_OPTIONS
     -O3
     -DNDEBUG
@@ -218,7 +245,7 @@ set(CSOUND_WASM_COMMON_COMPILE_OPTIONS
 )
 
 set(CSOUND_WASM_COMMON_LINK_OPTIONS
-    "-sENVIRONMENT=[\"web\",\"worker\"]"
+    "${CSOUND_WASM_ENVIRONMENT_LINK_FLAG}"
     "-sERROR_ON_UNDEFINED_SYMBOLS=0"
     "-sALLOW_MEMORY_GROWTH=0"
     "-sASSERTIONS=0"
@@ -262,7 +289,7 @@ target_link_libraries(CsoundAudioProcessor PRIVATE
 target_link_options(CsoundAudioProcessor PRIVATE
     --bind
     ${CSOUND_WASM_COMMON_LINK_OPTIONS}
-    "-sEXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\",\"FS\"]"
+    "${CSOUND_WASM_EXPORTED_RUNTIME_METHODS_FLAG}"
     "-sRESERVED_FUNCTION_POINTERS=2"
     "-sSINGLE_FILE=1"
     "-sWASM_ASYNC_COMPILATION=0"
@@ -313,7 +340,7 @@ target_link_options(CsoundACWasm PRIVATE
     ${CSOUND_WASM_COMMON_LINK_OPTIONS}
     "-sEXPORT_ES6=0"
     "-sEXPORT_NAME=createCsoundAC"
-    "-sEXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\",\"FS\"]"
+    "${CSOUND_WASM_EXPORTED_RUNTIME_METHODS_FLAG}"
     "-sMODULARIZE=1"
     "-sRESERVED_FUNCTION_POINTERS=1"
     # CsoundAC is intentionally emitted as JavaScript plus a separate
