@@ -147,8 +147,6 @@ set(BUILD_CSBEATS OFF CACHE BOOL "Build csbeats frontend" FORCE)
 set(INSTALL_PYTHON_INTERFACE OFF CACHE BOOL "Install Python interface" FORCE)
 
 include_directories(
-    "${Boost_INCLUDE_DIR}"
-    "${Eigen_INCLUDE_DIR}"
     "${CMAKE_SOURCE_DIR}/dependencies"
     "${CMAKE_SOURCE_DIR}/dependencies/csound"
     "${CMAKE_SOURCE_DIR}/dependencies/csound/include"
@@ -157,10 +155,21 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/dependencies/csound-ac/CsoundAC"
     "${libsndfile_SOURCE_DIR}/include"
 )
+# On Linux, Boost_INCLUDE_DIR is typically /usr/include. Adding that as a global -I
+# makes <limits.h> resolve to glibc before emscripten's sysroot (fatal:
+# bits/libc-header-start.h). Eigen stays under .../eigen3 only, which is safe.
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    include_directories("${Boost_INCLUDE_DIR}")
+endif()
+include_directories("${Eigen_INCLUDE_DIR}")
 
 # Build Csound and CsoundAC.
 add_subdirectory(dependencies/csound)
 add_subdirectory(CsoundAC)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten" AND TARGET csoundac-static)
+    target_include_directories(csoundac-static PRIVATE "${Boost_INCLUDE_DIR}")
+endif()
 
 if(TARGET csound-static)
     set(CSOUND_WASM_CSOUND_TARGET csound-static)
