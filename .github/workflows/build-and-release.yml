@@ -55,11 +55,18 @@ jobs:
       - name: Configure and build
         run: |
           set -euo pipefail
+          # BOOST_ROOT=/usr makes Boost_INCLUDE_DIR=/usr/include. Passing -I/usr/include
+          # into em++ pulls the host glibc stdint.h before the Emscripten sysroot and
+          # breaks with: bits/libc-header-start.h not found. Isolate boost/eigen3 only.
+          WASM_CI_DEPS="${RUNNER_TEMP}/wasm-ci-deps"
+          mkdir -p "${WASM_CI_DEPS}/include"
+          ln -sfn /usr/include/boost "${WASM_CI_DEPS}/include/boost"
+          ln -sfn /usr/include/eigen3 "${WASM_CI_DEPS}/include/eigen3"
           cp -f dependencies/csound-ac/CsoundAC/version.h dependencies/csound/include/version.h
           emcmake cmake -S . -B build-wasm -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DEIGEN_ROOT=/usr \
-            -DBOOST_ROOT=/usr
+            -DEIGEN_ROOT="${WASM_CI_DEPS}" \
+            -DBOOST_ROOT="${WASM_CI_DEPS}"
           cmake --build build-wasm --parallel "$(nproc)" --target package_wasm
 
       - name: Upload zip artifact
