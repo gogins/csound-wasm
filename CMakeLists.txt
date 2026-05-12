@@ -155,20 +155,31 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/dependencies/csound-ac/CsoundAC"
     "${libsndfile_SOURCE_DIR}/include"
 )
-# On Linux, Boost_INCLUDE_DIR is typically /usr/include. Adding that as a global -I
-# makes <limits.h> resolve to glibc before emscripten's sysroot (fatal:
-# bits/libc-header-start.h). Eigen stays under .../eigen3 only, which is safe.
+# On Linux, Boost_INCLUDE_DIR is /usr/include. Adding that as a global -I pulls
+# glibc stdint.h/limits.h before emscripten's sysroot (bits/libc-header-start.h).
+# Eigen is under /usr/include/eigen3; some toolchains still follow into /usr/include
+# for <stdint.h>, so do not add Eigen globally for Emscripten either.
 if(NOT CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     include_directories("${Boost_INCLUDE_DIR}")
+    include_directories("${Eigen_INCLUDE_DIR}")
 endif()
-include_directories("${Eigen_INCLUDE_DIR}")
+
+# Csound's CMake appends /usr to CMAKE_PREFIX_PATH; find_* can then add host
+# libc headers to emcc. Ignore those paths for CMake searches (not for explicit
+# target_include_directories below).
+if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
+    list(APPEND CMAKE_IGNORE_PATH /usr/include /usr/local/include)
+endif()
 
 # Build Csound and CsoundAC.
 add_subdirectory(dependencies/csound)
 add_subdirectory(CsoundAC)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten" AND TARGET csoundac-static)
-    target_include_directories(csoundac-static PRIVATE "${Boost_INCLUDE_DIR}")
+    target_include_directories(csoundac-static PRIVATE
+        "${Boost_INCLUDE_DIR}"
+        "${Eigen_INCLUDE_DIR}"
+    )
 endif()
 
 if(TARGET csound-static)
