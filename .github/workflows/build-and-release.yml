@@ -10,6 +10,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -24,6 +28,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 1
 
       - name: Install build dependencies
         run: |
@@ -32,6 +37,7 @@ jobs:
             build-essential \
             cmake \
             ninja-build \
+            ccache \
             python3 \
             bison \
             flex \
@@ -40,10 +46,25 @@ jobs:
             libeigen3-dev \
             libboost-dev
 
+      - name: Prepare ccache
+        run: |
+          ccache --set-config=max_size=750M
+          ccache --set-config=compression=true
+          ccache --zero-stats || true
+
+      - name: Cache ccache
+        uses: actions/cache@v4
+        with:
+          path: ~/.ccache
+          key: ccache-wasm-${{ runner.os }}-${{ hashFiles('CMakeLists.txt', 'CsoundAC/**', 'build-wasm.sh', 'dependencies/csound/CMakeLists.txt') }}
+          restore-keys: |
+            ccache-wasm-${{ runner.os }}-
+
       - name: Setup Emscripten
         uses: mymindstorm/setup-emsdk@v14
         with:
-          version: latest
+          # Pinned (not "latest") so the emsdk action cache and ccache stay warm across runs.
+          version: 3.1.74
           actions-cache-folder: emsdk-cache
 
       - name: Configure and build
@@ -52,10 +73,12 @@ jobs:
           cp -f dependencies/csound-ac/CsoundAC/version.h dependencies/csound/include/version.h
           emcmake cmake -S . -B build-wasm -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
-            -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
             -DEIGEN_ROOT=/usr \
             -DBOOST_ROOT=/usr
           cmake --build build-wasm --parallel "$(nproc)" --target package_wasm
+          ccache --show-stats || true
 
       - name: Upload zip artifact
         uses: actions/upload-artifact@v4
