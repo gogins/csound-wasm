@@ -1,10 +1,10 @@
 [submodule "dependencies/csound"]
 	path = dependencies/csound
-	url = https://github.com/csound/csound.git
+	url = git@github.com:csound/csound.git
 	branch = develop
 [submodule "dependencies/csound-ac"]
 	path = dependencies/csound-ac
-	url = https://github.com/gogins/csound-ac.git
+	url = git@github.com:gogins/csound-ac.git
 	branch = master
 [submodule "csound-ac"]
 	branch = master
