@@ -1,0 +1,71 @@
+name: build-and-release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wasm:
+    name: wasm
+    runs-on: ubuntu-latest
+    env:
+      EMSCRIPTEN_ALLOW_NEWER_PYTHON: 1
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential \
+            cmake \
+            ninja-build \
+            python3 \
+            bison \
+            flex \
+            git \
+            rsync \
+            libeigen3-dev \
+            libboost-dev
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+          actions-cache-folder: emsdk-cache
+
+      - name: Configure and build
+        run: |
+          set -euo pipefail
+          cp -f dependencies/csound-ac/CsoundAC/version.h dependencies/csound/include/version.h
+          emcmake cmake -S . -B build-wasm -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
+            -DEIGEN_ROOT=/usr \
+            -DBOOST_ROOT=/usr
+          cmake --build build-wasm --parallel "$(nproc)" --target package_wasm
+
+      - name: Upload zip artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: csound-wasm
+          path: csound-wasm-*.zip
+          if-no-files-found: error
+
+      - name: Upload to GitHub Release
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          files: csound-wasm-*.zip
