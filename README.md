@@ -54,10 +54,9 @@ Download the latest version of `csound-wasm-{version.zip}` from the
 [release page here](https://github.com/gogins/csound-extended/releases). Unzip 
 it and it is ready to use.
 
-## Examples
+## Testing
 
-There are some working examples in the release zip file. In the directory where 
-you have unzipped the release, execute:
+To validate your build or installation, go the `csound-wasm/web` directory. Execute:
 
 ```
 python3 -m http.server
@@ -66,10 +65,6 @@ python3 -m http.server
 Then navigate to `http://localhost:8000` and view `minimal.html`. Click on 
 the Play button to validate your installation. Do the same with 
 `trichord_space.html` which uses CsoundAC in addition to Csound.
-
-Some of the examples herein will run from 
-https://gogins.github.io/csound-examples. For more information, see my 
-[csound-examples](https://github.com/gogins/csound-examples) repository.
 
 ## Building
 
