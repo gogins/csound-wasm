@@ -356,7 +356,7 @@ function escape_html(text)
                 chord_space = new ChordSpace("RPTg", 12.);
             }
             if (value === "OPTI") {
-                chord_space = new ChordSpace("RPTgI", 12.);
+                chord_space = new ChordSpace("RPTIg", 12.);
             }
             chord_space_view = new ChordSpaceView(chord_space);
             chord_space_view.draw3D(document.getElementById("canvas"));
@@ -546,7 +546,7 @@ function escape_html(text)
                 csound_message_callback("ChordSpace constructor: " + equivalence_class_ + ", " + range_ + "\n");
                 this.equivalence_class = equivalence_class_;
                 this.range = range_;
-                this.chords = CsoundAC.allOfEquivalenceClass(3, this.equivalence_class, this.range, 1., 0, false);
+                this.chords = CsoundAC.allOfEquivalenceClass(3, this.equivalence_class, this.range, 1., 0., true);
             }
             contains(a) {
                 let n = this.chords.size();

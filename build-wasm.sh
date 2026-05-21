@@ -27,9 +27,13 @@ cmake_config_args=(
     -B build-wasm
     -G "Unix Makefiles"
     -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     -DEIGEN_ROOT="${EIGEN_ROOT:-${eigen_root_default}}"
     -DBOOST_ROOT="${BOOST_ROOT:-${boost_root_default}}"
 )
+
+# Always do a clean build.
+rm -rf build-wasm
 
 # Csound expects this generated/version header in the include tree for this build.
 cp -f dependencies/csound-ac/CsoundAC/version.h dependencies/csound/include/version.h
