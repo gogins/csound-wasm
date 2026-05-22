@@ -353,9 +353,15 @@ function escape_html(text)
                 chord_space = new ChordSpace("RP", 12.);
             }
             if (value === "OPT") {
-                chord_space = new ChordSpace("RPTg", 12.);
+                chord_space = new ChordSpace("RPT", 12.);
             }
             if (value === "OPTI") {
+                chord_space = new ChordSpace("RPTI", 12.);
+            }
+            if (value === "OPTg") {
+                chord_space = new ChordSpace("RPTg", 12.);
+            }
+            if (value === "OPTIg") {
                 chord_space = new ChordSpace("RPTIg", 12.);
             }
             chord_space_view = new ChordSpaceView(chord_space);
@@ -475,7 +481,7 @@ function escape_html(text)
                 add_slider(Master, 'gi_Reverb_delay_modulation', 0, 3);
                 add_slider(Master, 'gk_Reverb_frequency_cutoff', 5000, 20000);
                 add_slider(Master, 'gk_MasterOutput_level', -80, 80);
-                gui.add(gui_parameters, 'equivalence_class', ['OP', 'OPT', 'OPTI']).name('Equivalence class').onChange(draw_fundamental_domain);
+                gui.add(gui_parameters, 'equivalence_class', ['OP', 'OPT', 'OPTI', 'OPTg', 'OPTIg']).name('Equivalence class').onChange(draw_fundamental_domain);
                 gui.add(gui_parameters, 'transpose').name('Transpose [T]');
                 gui.add(gui_parameters, 'invert').name('Invert [I]');
                 let Neo_Reimannian = gui.addFolder('Neo-Riemannian Transformations');
