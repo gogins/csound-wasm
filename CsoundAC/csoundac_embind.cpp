@@ -156,11 +156,6 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("random", &csound::CellRandom::random)
     ;
     // FINISHED
-    emscripten::class_<csound::CellReflect, emscripten::base<csound::Node> >("CellReflect")
-        .constructor<>()
-        .function("reflect", &csound::CellReflect::reflect)
-    ;
-    // FINISHED
     emscripten::class_<csound::CellRemove, emscripten::base<csound::Node> >("CellRemove")
         .constructor<>()
         .function("remove", &csound::CellRemove::remove)
@@ -373,7 +368,8 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("permutations", &csound::Chord::permutations)
         .function("prime_form", &csound::Chord::prime_form)
         .function("Q", &csound::Chord::Q)
-        .function("reflect", &csound::Chord::reflect)
+        .function("R", &csound::Chord::R)
+        .function("Rg", &csound::Chord::Rg)
         .function("resize", &csound::Chord::resize)
         .function("setDuration", &csound::Chord::setDuration)
         .function("setInstrument", &csound::Chord::setInstrument)

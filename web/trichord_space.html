@@ -683,8 +683,8 @@ function escape_html(text)
                     }
                 }
                 csound_message_callback(sprintf("invert: sector:     %d\n", s));
-                let reflection = chord.reflect(s);
-                reflection.clamp(12.0);
+                let reflection = chord.Rg(s, 1.0);
+                reflection.eET(1.0);
                 csound_message_callback(sprintf("invert: reflection: %s\n", reflection.toString()));
                 this.select_chord(reflection);
             } 

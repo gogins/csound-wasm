@@ -21,7 +21,7 @@ case "${OSTYPE}" in
         exit 1
         ;;
 esac
-
+bash update-dependency-submodules.sh
 cmake_config_args=(
     -S .
     -B build-wasm
