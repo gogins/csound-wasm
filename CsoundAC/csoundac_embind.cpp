@@ -314,6 +314,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("information_debug",&csound::Chord::information_debug)
         .function("information_sector",&csound::Chord::information_sector)
         .function("is_in_rpt_sector", &csound::Chord::is_in_rpt_sector)
+        .function("is_in_rpt_sector_g", &csound::Chord::is_in_rpt_sector_g)
         .function("is_minor", &csound::Chord::is_minor)
         .function("iseI", &csound::Chord::iseI)
         .function("iseI_chord", &csound::Chord::iseI_chord, emscripten::allow_raw_pointers())

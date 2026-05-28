@@ -675,18 +675,16 @@ function escape_html(text)
                 if (chord == null) {
                     return;
                 }
-                csound_message_callback(sprintf("invert: chord:      %s\n", chord.name()));
-                let s = 0;
-                for ( ; s < chord.voices(); ++s) {
-                    if (chord.is_in_rpt_sector(s, 1.) == true) {
-                        break;
+                csound_message_callback(sprintf("invert: chord:      %s\n", chord.toString()));
+                for (let s = 0; s < chord.voices(); ++s) {
+                    if (chord.is_in_rpt_sector_g(s, 12., 1.0) == true) {
+                        csound_message_callback(sprintf("invert: sector:     %d\n", s));
+                        let reflection = chord.Rg(s, 1.0);
+                        reflection = reflection.eET(1.0);
+                        csound_message_callback(sprintf("invert: reflection: %s\n", reflection.toString()));
+                        this.select_chord(reflection);
                     }
                 }
-                csound_message_callback(sprintf("invert: sector:     %d\n", s));
-                let reflection = chord.Rg(s, 1.0);
-                reflection = reflection.eET(1.0);
-                csound_message_callback(sprintf("invert: reflection: %s\n", reflection.toString()));
-                this.select_chord(reflection);
             } 
             nrr() {
                 let chord = this.current_chord();
