@@ -636,7 +636,10 @@ function escape_html(text)
                 if (chord == null) {
                     return;
                 }
-                let chord_id = chord.name();
+                // Use toString() (pitch-based) as the key, not name(), because
+                // name() returns "" for any chord without a standard musical name,
+                // causing all unnamed chords to alias the same map entry.
+                let chord_id = chord.toString();
                 let ball_id = this.balls_for_chords.get(chord_id);
                 if (ball_id == null) {
                     return;
@@ -676,6 +679,10 @@ function escape_html(text)
                     return;
                 }
                 csound_message_callback(sprintf("invert: chord:      %s\n", chord.toString()));
+                // Break after the first sector where the chord belongs.
+                // is_in_rpt_sector_g returns true for ALL sectors on symmetric
+                // chords (diminished, augmented) because their scores are tied;
+                // without the break the last sector's (wrong) reflection wins.
                 for (let s = 0; s < chord.voices(); ++s) {
                     if (chord.is_in_rpt_sector_g(s, 12., 1.0) == true) {
                         csound_message_callback(sprintf("invert: sector:     %d\n", s));
@@ -683,6 +690,7 @@ function escape_html(text)
                         reflection = reflection.eET(1.0);
                         csound_message_callback(sprintf("invert: reflection: %s\n", reflection.toString()));
                         this.select_chord(reflection);
+                        break;
                     }
                 }
             } 
@@ -993,7 +1001,9 @@ function escape_html(text)
                 ball.position.y = chord.getPitch(1);
                 ball.position.z = chord.getPitch(2);
                 this.scene.add(ball);
-                this.controller.balls_for_chords.set(chord.name(), ball.id);
+                // Use toString() (pitch-based) as the key so that every chord
+                // gets its own unique entry regardless of whether it has a name.
+                this.controller.balls_for_chords.set(chord.toString(), ball.id);
                 this.controller.chords_for_balls.set(ball.id, chord);
                 ///csound_message_callback("plotChord3D: normal_form: " + chord.normal_form().toString() + " chord: " + chord.name() + "\n");
             }
