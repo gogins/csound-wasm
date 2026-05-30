@@ -626,9 +626,23 @@ function escape_html(text)
              * Canonical OPT sector for a chord (lowest index among ties).
              */
             sector_for_chord(chord) {
-                const sectors = chord.opt_domain_sectors();
-                if (sectors.size() > 0) {
-                    return sectors.get(0);
+                try {
+                    const sectors = chord.opt_domain_sectors();
+                    if (sectors != null) {
+                        if (typeof sectors.size === 'function' && sectors.size() > 0) {
+                            return sectors.get(0);
+                        }
+                        if (sectors.length > 0) {
+                            return sectors[0];
+                        }
+                    }
+                } catch (e) {
+                    csound_message_callback("sector_for_chord: " + e.message + "\n");
+                }
+                for (let s = 0; s < chord.voices(); ++s) {
+                    if (chord.is_in_rpt_sector_g(s, 12., 1.0) === true) {
+                        return s;
+                    }
                 }
                 return 0;
             }
@@ -657,11 +671,16 @@ function escape_html(text)
                 // causing all unnamed chords to alias the same map entry.
                 let chord_id = chord.toString();
                 let ball_id = this.balls_for_chords.get(chord_id);
-                if (ball_id == null) {
-                    return;
+                if (ball_id != null) {
+                    return this.view.scene.getObjectById(ball_id);
                 }
-                let object_ = this.view.scene.getObjectById(ball_id);
-                return object_;
+                // Exact string keys can miss after Rg; match by pitch equality.
+                for (const [object_id, stored] of this.chords_for_balls.entries()) {
+                    if (stored.equals(chord)) {
+                        return this.view.scene.getObjectById(object_id);
+                    }
+                }
+                return;
             }
             current_chord() {
                 return this.chord_for_ball(this.pickedObject);
@@ -694,16 +713,12 @@ function escape_html(text)
                 if (chord == null) {
                     return;
                 }
-                const eq = this.view.chord_space.equivalence_class;
                 csound_message_callback(sprintf("invert: chord:      %s\n", chord.toString()));
                 csound_message_callback(sprintf("invert: sector:     %d\n", this.pickedSector));
-                let reflection;
-                if (eq === 'OPTg' || eq === 'OPTIg') {
-                    reflection = chord.Rg(this.pickedSector, 1.0);
-                    reflection = reflection.eET(1.0);
-                } else {
-                    reflection = chord.R(this.pickedSector);
-                }
+                // Rg maps to a cached RPg partner on the ET lattice (same as before).
+                // Continuous R() can land off-lattice and miss every plotted ball.
+                let reflection = chord.Rg(this.pickedSector, 1.0);
+                reflection = reflection.eET(1.0);
                 csound_message_callback(sprintf("invert: reflection: %s\n", reflection.toString()));
                 // Keep pickedSector: facet chords may move to a different sector
                 // after reflection, but involution requires the same flat.
@@ -801,13 +816,16 @@ function escape_html(text)
                 let ball = this.ball_for_chord(chord);
                 // Note: "variable == null" is true if the variable is either undefined or null.
                 if (ball == null) {
+                    csound_message_callback(sprintf("select_chord: no ball for %s\n", chord.toString()));
                     return;
                 }
+                const mapped = this.chord_for_ball(ball);
+                const selected = (mapped != null) ? mapped : chord;
                 if (updateSector) {
-                    this.pickedSector = this.sector_for_chord(chord);
+                    this.pickedSector = this.sector_for_chord(selected);
                 }
                 this.select_ball(ball);
-                this.view.on_picked_chord(chord);
+                this.view.on_picked_chord(selected);
             }
             select_ball(ball) {
                 // Restore the state of a previoiusly picked chord.
