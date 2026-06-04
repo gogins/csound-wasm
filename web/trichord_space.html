@@ -475,7 +475,7 @@ function escape_html(text)
                 add_slider(Master, 'gi_Reverb_delay_modulation', 0, 3);
                 add_slider(Master, 'gk_Reverb_frequency_cutoff', 5000, 20000);
                 add_slider(Master, 'gk_MasterOutput_level', -80, 80);
-                gui.add(gui_parameters, 'equivalence_class', ['OP', 'OPT', 'OPTI', 'OPTg', 'OPTIg']).name('Equivalence class').onChange(draw_fundamental_domain);
+                gui.add(gui_parameters, 'equivalence_class', ['OP', 'OPTg', 'OPTIg']).name('Equivalence class').onChange(draw_fundamental_domain);
                 gui.add(gui_parameters, 'transpose').name('Transpose [T]');
                 gui.add(gui_parameters, 'invert').name('Invert [I]');
                 let Neo_Reimannian = gui.addFolder('Neo-Riemannian Transformations');
