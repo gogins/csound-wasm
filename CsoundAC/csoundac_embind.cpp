@@ -109,6 +109,58 @@ static Eigen::MatrixXd create_rotation(int from_axis, int to_axis, double radian
     return rotation;
 }
 
+/**
+ * Mutable P, I, T, V indices for use with PITV (additive wasm API).
+ */
+struct PitvIndices {
+    int P;
+    int I;
+    int T;
+    int V;
+    PitvIndices() : P(0), I(0), T(0), V(0) {}
+    PitvIndices(int p, int i, int t, int v) : P(p), I(i), T(t), V(v) {}
+};
+
+static std::vector<int> pitv_from_chord_as_vector(const csound::PITV &pitv, const csound::Chord &chord, bool printme = false) {
+    const Eigen::VectorXi indices = pitv.fromChord(chord, printme);
+    return std::vector<int>(indices.data(), indices.data() + indices.size());
+}
+
+static PitvIndices pitv_from_chord_indices(const csound::PITV &pitv, const csound::Chord &chord, bool printme = false) {
+    const Eigen::VectorXi indices = pitv.fromChord(chord, printme);
+    return PitvIndices(indices(0), indices(1), indices(2), indices(3));
+}
+
+static std::vector<csound::Chord> pitv_to_chord_from_indices(const csound::PITV &pitv, const PitvIndices &indices, bool printme = false) {
+    Eigen::VectorXi pitv_vector(4);
+    pitv_vector << indices.P, indices.I, indices.T, indices.V;
+    return pitv.toChord_vector(pitv_vector, printme);
+}
+
+static std::vector<csound::Chord> pitv_to_chord_from_vector(const csound::PITV &pitv, const std::vector<int> &indices, bool printme = false) {
+    Eigen::VectorXi pitv_vector(indices.size());
+    for (size_t i = 0; i < indices.size(); ++i) {
+        pitv_vector(static_cast<int>(i)) = indices[i];
+    }
+    return pitv.toChord_vector(pitv_vector, printme);
+}
+
+static csound::Chord chord_copy(const csound::Chord &chord) {
+    return chord.clone();
+}
+
+static csound::Event event_copy(const csound::Event &event) {
+    return csound::Event(event);
+}
+
+static std::vector<csound::Chord> chord_voicings(const csound::Chord &chord, int direction, double interval) {
+    return chord.voicings(direction, interval);
+}
+
+static std::vector<csound::Chord> chord_voicings_default(const csound::Chord &chord) {
+    return chord.voicings();
+}
+
 EMSCRIPTEN_BINDINGS(csoundac) {  
     emscripten::function("create", &zeros);
     emscripten::function("identity", &identity);
@@ -127,6 +179,30 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     emscripten::register_vector<csound::Scale>("ScaleVector");
     emscripten::register_vector<csound::Event>("EventVector");
     emscripten::register_vector<std::string>("StringVector");
+    emscripten::register_map<double, csound::Chord>("DoubleToChordMap");
+    emscripten::class_<PitvIndices>("PitvIndices")
+        .constructor<>()
+        .constructor<int, int, int, int>()
+        .property("P", &PitvIndices::P)
+        .property("I", &PitvIndices::I)
+        .property("T", &PitvIndices::T)
+        .property("V", &PitvIndices::V)
+    ;
+    emscripten::enum_<csound::Event::Dimensions>("EventDimensions")
+        .value("TIME", csound::Event::TIME)
+        .value("DURATION", csound::Event::DURATION)
+        .value("STATUS", csound::Event::STATUS)
+        .value("INSTRUMENT", csound::Event::INSTRUMENT)
+        .value("KEY", csound::Event::KEY)
+        .value("VELOCITY", csound::Event::VELOCITY)
+        .value("PHASE", csound::Event::PHASE)
+        .value("PAN", csound::Event::PAN)
+        .value("DEPTH", csound::Event::DEPTH)
+        .value("HEIGHT", csound::Event::HEIGHT)
+        .value("PITCHES", csound::Event::PITCHES)
+        .value("HOMOGENEITY", csound::Event::HOMOGENEITY)
+        .value("ELEMENT_COUNT", csound::Event::ELEMENT_COUNT)
+    ;
      // FINISHED
     emscripten::class_<csound::Cell, emscripten::base<csound::ScoreNode> >("Cell")
         .constructor<>()
@@ -148,7 +224,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     // FINISHED
     emscripten::class_<csound::CellMultiply, emscripten::base<csound::Node> >("CellMultiply")
         .constructor<>()
-        .function("multiply", &csound::CellChord::chord)
+        .function("multiply", &csound::CellMultiply::multiply)
     ;
     // FINISHED
     emscripten::class_<csound::CellRandom, emscripten::base<csound::Random> >("CellRandom")
@@ -294,7 +370,6 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("eRPTT", &csound::Chord::eRPTg)
         .function("eRPTg", &csound::Chord::eRPTg)
         .function("eRPTIg", &csound::Chord::eRPTIg)
-        .function("eRPTIg", &csound::Chord::eRPTIg)
         .function("et", &csound::Chord::et)
         .function("eT", &csound::Chord::eT)
         .function("eTT", &csound::Chord::eTg)
@@ -384,6 +459,10 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("v", &csound::Chord::v)
         .function("voiceleading", &csound::Chord::voiceleading)
         .function("voices", &csound::Chord::voices)
+        .function("copy", &chord_copy)
+        .function("voicings", &chord_voicings_default)
+        .function("voicings_with", &chord_voicings)
+        .function("J", &chord_voicings_default)
     ;
     // FINISHED
     emscripten::class_<csound::ChordLindenmayer, emscripten::base<csound::VoiceleadingNode> >("ChordLindenmayer")
@@ -416,6 +495,10 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("list", &csound::PITV::list)
         .function("preinitialize", &csound::PITV::preinitialize)
         .function("toChord", &csound::PITV::toChord)
+        .function("toChord_vector", &pitv_to_chord_from_vector)
+        .function("toChordFromIndices", &pitv_to_chord_from_indices)
+        .function("fromChordAsVector", &pitv_from_chord_as_vector)
+        .function("fromChordIndices", &pitv_from_chord_indices)
         .property("countI", &csound::PITV::getCountI)
         .property("countP", &csound::PITV::getCountP)
         .property("countT", &csound::PITV::getCountT)
@@ -463,7 +546,6 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("perform", &csound::Composition::perform)
         .function("performAll", &csound::Composition::performAll)
         .function("performMaster", &csound::Composition::performMaster)
-        .function("performAll", &csound::Composition::performAll)
         .function("processArgs", &csound::Composition::processArgs)
         .function("processArgv", &csound::Composition::processArgv, emscripten::allow_raw_pointers())
         .function("render", &csound::Composition::render)
@@ -628,7 +710,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     // FINISHED
     emscripten::class_<csound::Event, emscripten::base<Eigen::VectorXd> >("Event")
         .constructor<>()
-        //.constructor<const csound::Event&>()
+        .constructor<const csound::Event&>()
         //.constructor<std::string>()
         //.constructor<const Eigen::VectorXd&>()
         .constructor<double, double, double, double, double, double, double, double, double, double, double>()
@@ -651,7 +733,6 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("getKeyNumber", &csound::Event::getKeyNumber)
         .function("getLeftGain", &csound::Event::getLeftGain)
         .function("getMidiStatus", &csound::Event::getMidiStatus)
-        .function("getKeyNumber", &csound::Event::getKeyNumber)
         .function("getOffTime", &csound::Event::getOffTime)
         .function("getPan", &csound::Event::getPan)
         .function("getPhase", &csound::Event::getPhase)
@@ -695,6 +776,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("toCsoundIStatementHeld", &csound::Event::toCsoundIStatementHeld)
         .function("toCsoundIStatementRelease", &csound::Event::toCsoundIStatementRelease)
         .function("toString", &csound::Event::toString)
+        .function("copy", &event_copy)
     ;
     emscripten::function("getCorrectNegativeDurations", &csound::getCorrectNegativeDurations);
     emscripten::function("setCorrectNegativeDurations", &csound::setCorrectNegativeDurations);
@@ -877,7 +959,6 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("getPTV", &csound::Score::getPTV)
         // NOT SUPPORTED
         // .function("getScale", &csound::Score::getScale, emscripten::allow_raw_pointers())
-        .function("getPTV", &csound::Score::getPTV)
         .function("getRescaleMinima", &csound::Score::getRescaleMinima)
         .function("getRescaleRanges", &csound::Score::getRescaleRanges)
         .function("getScaleActualMinima", &csound::Score::getScaleActualMinima)
@@ -916,7 +997,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("toString", &csound::Score::toString)
         .function("voicelead", &csound::Score::voicelead_segments)
         .function("voicelead_pitches", &csound::Score::voicelead_pitches)
-        .function("setPTV", &csound::Score::setPTV)
+        .function("size", emscripten::select_overload<size_t() const>(&csound::Score::size))
     ;
     // FINISHED
     emscripten::class_<csound::ChordScore, emscripten::base<csound::Score> >("ChordScore")
@@ -926,7 +1007,10 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         // NOT SUPPORTED.
         // .function("getScale", &csound::ChordScore::getScale, emscripten::allow_raw_pointers())
         .function("insertChord", &csound::ChordScore::insertChord)
+        .function("getTimelineDuration", &csound::ChordScore::getDuration)
+        .function("setTimelineDuration", &csound::ChordScore::setDuration)
         .function("setScale", &csound::ChordScore::setScale, emscripten::allow_raw_pointers())
+        .property("chords_for_times", &csound::ChordScore::chords_for_times)
     ;
     // FINISHED
     emscripten::class_<csound::ScoreModel, emscripten::base<csound::Composition> >("ScoreModel")
@@ -997,8 +1081,6 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("setIteration", &csound::StrangeAttractor::setIteration)
         .function("setIterationCount", &csound::StrangeAttractor::setIterationCount)
         .function("setScoreType", &csound::StrangeAttractor::setScoreType)
-        .function("setAttractorType", &csound::StrangeAttractor::setAttractorType)
-        .function("setAttractorType", &csound::StrangeAttractor::setAttractorType)
         .function("setW", &csound::StrangeAttractor::setW)
         .function("setX", &csound::StrangeAttractor::setX)
         .function("setY", &csound::StrangeAttractor::setY)
