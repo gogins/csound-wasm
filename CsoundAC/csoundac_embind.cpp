@@ -710,7 +710,8 @@ EMSCRIPTEN_BINDINGS(csoundac) {
     // FINISHED
     emscripten::class_<csound::Event, emscripten::base<Eigen::VectorXd> >("Event")
         .constructor<>()
-        .constructor<const csound::Event&>()
+        // Copy via event.copy() — embind allows only one constructor per arity.
+        //.constructor<const csound::Event&>()
         //.constructor<std::string>()
         //.constructor<const Eigen::VectorXd&>()
         .constructor<double, double, double, double, double, double, double, double, double, double, double>()
