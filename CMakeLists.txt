@@ -171,6 +171,24 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     list(APPEND CMAKE_IGNORE_PATH /usr/include /usr/local/include)
 endif()
 
+# Pre-generate version.h before libcsound compiles so it wins over any stale copy on
+# the global include path (e.g. csound-ac/CsoundAC/version.h from old workarounds).
+file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/dependencies/csound/include")
+if(NOT DEFINED CS_VERSION)
+    set(CS_VERSION "7")
+    set(CS_SUBVER "0")
+    set(CS_PATCHLEVEL "0")
+endif()
+if(NOT DEFINED CS_PACKAGE_DATE_DEFINE)
+    string(TIMESTAMP CS_PACKAGE_DATE_DEFINE "__DATE__")
+endif()
+configure_file(
+    "${CMAKE_SOURCE_DIR}/dependencies/csound/include/version.h.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/dependencies/csound/include/version.h"
+    @ONLY
+)
+include_directories(BEFORE "${CMAKE_CURRENT_BINARY_DIR}/dependencies/csound/include")
+
 # Build Csound and CsoundAC.
 add_subdirectory(dependencies/csound)
 add_subdirectory(CsoundAC)

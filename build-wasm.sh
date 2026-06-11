@@ -35,8 +35,11 @@ cmake_config_args=(
 # Always do a clean build.
 rm -rf build-wasm
 
-# Csound expects this generated/version header in the include tree for this build.
-cp -f dependencies/csound-ac/CsoundAC/version.h dependencies/csound/include/version.h
+# CMake generates version.h from version.h.in in the build tree. Remove stale copies
+# (old workaround copied 6.18 from csound-ac; csound-ac/CsoundAC is on -I and
+# would shadow the generated header during libcsound compile).
+rm -f dependencies/csound/include/version.h
+rm -f dependencies/csound-ac/CsoundAC/version.h
 
 emcmake cmake "${cmake_config_args[@]}"
 cmake --build build-wasm --parallel "${BUILD_JOBS:-6}"

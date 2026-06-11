@@ -62,7 +62,7 @@ jobs:
           mkdir -p "${WASM_CI_DEPS}/include"
           ln -sfn /usr/include/boost "${WASM_CI_DEPS}/include/boost"
           ln -sfn /usr/include/eigen3 "${WASM_CI_DEPS}/include/eigen3"
-          cp -f dependencies/csound-ac/CsoundAC/version.h dependencies/csound/include/version.h
+          rm -f dependencies/csound/include/version.h dependencies/csound-ac/CsoundAC/version.h
           emcmake cmake -S . -B build-wasm -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DEIGEN_ROOT="${WASM_CI_DEPS}" \
