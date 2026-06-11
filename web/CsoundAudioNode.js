@@ -509,6 +509,9 @@ class CsoundAudioNode extends AudioWorkletNode {
     async start() {
         // this.message_callback("[" + window.performance.now() + " Start.]\n");
         try {
+            if (this.context.state === 'suspended') {
+                await this.context.resume();
+            }
             let device_list = await navigator.mediaDevices.enumerateDevices();
             var message_callback_ = this.message_callback;
             var index = 0;
