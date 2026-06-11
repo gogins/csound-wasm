@@ -47,7 +47,13 @@
 #include <string>
 
 extern "C" {
-    int init_static_modules(CSOUND *csound);     
+    int init_static_modules(CSOUND *csound);
+    /**
+     * Csound 7 removed this from the public headers but it remains in
+     * Top/threadsafe.c. csound-wasm polyfills Csound::KillInstance via it.
+     */
+    int32_t csoundKillInstance(CSOUND *csound, MYFLT instr, char *instrName,
+                               int32_t mode, int32_t allow_release, int32_t async);
 };
 
 using namespace emscripten;
@@ -225,15 +231,13 @@ public:
         CsoundThreaded::InputMessage(sco.c_str());
     }
     virtual int KillInstance(MYFLT p1, const std::string &insname_, int mode, bool release) {
-#if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7
-          Message("CsoundEmbind::KillInstance() is not implemented in Csound 7. Use Csound code to do this. The signature of this method is retained for API compatibility.\n"); 
-          return 0;
-#else  
-        // Actually we ignore all string instrument names. The signature 
-        // is retained for API compatibility.
-        auto result = csoundKillInstance(GetCsound(), p1, nullptr, mode, release);
-        return result;
-#endif
+        CSOUND *csound = GetCsound();
+        char *insname = nullptr;
+        if (!insname_.empty()) {
+            insname = const_cast<char *>(insname_.c_str());
+        }
+        // async=1: enqueue for the performance thread (CsoundThreaded / wasm).
+        return csoundKillInstance(csound, p1, insname, mode, release ? 1 : 0, 1);
     }
     virtual void Message(const std::string &message) {
         Csound::Message(message.c_str());

@@ -501,6 +501,7 @@ class CsoundAudioNode extends AudioWorkletNode {
         try {
             this.port.postMessage(["Start"]);
             this.is_playing = true;
+            this._publishPlayingState();
             this.message_callback("is_playing...\n");
         } catch (e) {
             this.message_callback(e);
@@ -569,10 +570,17 @@ class CsoundAudioNode extends AudioWorkletNode {
             }
             this.port.postMessage(["Start"]);
             this.is_playing = true;
+            this._publishPlayingState();
             this.message_callback("is_playing...\n");
         } catch (e) {
             this.message_callback(e);
         }
+    }
+    _publishPlayingState() {
+        window.top.globalThis.csound = this;
+        window.top.dispatchEvent(
+            new CustomEvent('cloud5:csound-playing', { detail: { csound: this } }),
+        );
     }
     async Start() {
         await this.start();
