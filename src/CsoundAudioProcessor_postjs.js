@@ -417,13 +417,18 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
                         }
                     }
                 }
+            } else {
+                let wa_output_buffer = outputs[0];
+                for (let channel_i = 0; channel_i < wa_output_buffer.length; channel_i++) {
+                    wa_output_buffer[channel_i].fill(0);
+                }
             }
             return true;
         } catch(e) {
             console.log(e);
         }
     }
- };
+};
 
 registerProcessor("csound-audio-processor", CsoundAudioProcessor);
 console.log("Registered 'csound-audio-processor'.");
