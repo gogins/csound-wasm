@@ -1,14 +1,15 @@
 # Shim find module for the csound-wasm WebAssembly build.
 #
-# The top-level CMakeLists builds libsndfile from source via FetchContent and
+# The top-level CMakeLists builds libsndfile as an isolated ExternalProject and
 # exposes it through the SndFile_INCLUDE_DIR / SndFile_LIBRARY cache variables
-# and the SndFile::sndfile target. The Csound submodule (which must not be
-# modified) calls `find_package(SndFile MODULE)`; this module satisfies that
-# request from the in-tree build instead of searching for a system install,
+# and a real IMPORTED SndFile::sndfile target. The Csound submodule (which must
+# not be modified) calls `find_package(SndFile MODULE)`; this module satisfies
+# that request from the in-tree build instead of searching for a system install,
 # which does not exist in the Emscripten sysroot. Without it, Csound's
 # check_deps() disables USE_LIBSNDFILE and libcsound is compiled with no
 # soundfile I/O ("not using libsndfile"), so fout and -o file.wav cannot open
-# files.
+# files. SndFile::sndfile is normally already defined by the top-level project,
+# so the fallback target creation below is defensive only.
 
 include(FindPackageHandleStandardArgs)
 

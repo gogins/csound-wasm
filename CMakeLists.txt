@@ -58,74 +58,111 @@ set(Eigen_INCLUDE_DIR "${EIGEN_ROOT}/include/eigen3" CACHE PATH "Eigen include d
 set(Boost_INCLUDE_DIR "${BOOST_ROOT}/include" CACHE PATH "Boost include directory")
 
 # -----------------------------------------------------------------------------
-# libsndfile for WebAssembly.
+# libsndfile for WebAssembly (isolated ExternalProject).
 #
-# Build libsndfile from source with external compressed audio codecs disabled.
-# This avoids the old shell-script chain for Ogg, Vorbis, FLAC, and libsndfile.
+# Csound consumes libsndfile through the SndFile::sndfile target, both in the
+# final link and in try_compile-based configure probes (CMAKE_REQUIRED_LIBRARIES,
+# honored even by check_include_file via CMP0075). CMake can only forward an
+# IMPORTED target into a try_compile project; it cannot forward an ALIAS to an
+# in-tree target. libsndfile's own CMake unconditionally defines
+# `add_library(SndFile::sndfile ALIAS sndfile)`, so building it in-tree
+# (FetchContent_MakeAvailable) makes every Csound configure probe abort with
+# "target ... was not found". The historical build avoided this by consuming a
+# prebuilt libsndfile.a as a real IMPORTED target.
+#
+# Reproduce that cleanly: build libsndfile as an isolated ExternalProject (its
+# alias stays in its own sub-project) and present Csound a real IMPORTED static
+# library. A pre-created empty placeholder archive lets Csound's configure-time
+# link probes succeed before the real archive is built; the real archive is
+# produced before Csound compiles/links via add_dependencies(). No submodule
+# files are modified.
 # -----------------------------------------------------------------------------
 
-set(BUILD_SHARED_LIBS OFF CACHE BOOL "Build static libraries" FORCE)
-set(BUILD_PROGRAMS OFF CACHE BOOL "Build libsndfile programs" FORCE)
-set(BUILD_EXAMPLES OFF CACHE BOOL "Build libsndfile examples" FORCE)
-set(BUILD_TESTING OFF CACHE BOOL "Build tests" FORCE)
-set(BUILD_REGTEST OFF CACHE BOOL "Build libsndfile regression tests" FORCE)
-set(ENABLE_EXTERNAL_LIBS OFF CACHE BOOL "Enable Ogg/Vorbis/FLAC dependencies" FORCE)
-set(ENABLE_MPEG OFF CACHE BOOL "Enable MPEG dependencies" FORCE)
-set(INSTALL_PKGCONFIG_MODULE OFF CACHE BOOL "Install pkg-config module" FORCE)
-set(INSTALL_MANPAGES OFF CACHE BOOL "Install man pages" FORCE)
-set(ENABLE_CPACK OFF CACHE BOOL "Enable CPack support" FORCE)
-set(ENABLE_PACKAGE_CONFIG OFF CACHE BOOL "Generate package config file" FORCE)
+include(ExternalProject)
 
-FetchContent_Declare(
-    libsndfile
+set(CSOUND_WASM_SNDFILE_PREFIX      "${CMAKE_BINARY_DIR}/libsndfile")
+set(CSOUND_WASM_SNDFILE_INSTALL     "${CSOUND_WASM_SNDFILE_PREFIX}/install")
+set(CSOUND_WASM_SNDFILE_INCLUDE_DIR "${CSOUND_WASM_SNDFILE_INSTALL}/include")
+set(CSOUND_WASM_SNDFILE_ARCHIVE
+    "${CSOUND_WASM_SNDFILE_INSTALL}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}sndfile${CMAKE_STATIC_LIBRARY_SUFFIX}")
+
+ExternalProject_Add(libsndfile_external
     URL https://github.com/libsndfile/libsndfile/archive/refs/tags/1.2.2.tar.gz
+    PREFIX "${CSOUND_WASM_SNDFILE_PREFIX}"
+    INSTALL_DIR "${CSOUND_WASM_SNDFILE_INSTALL}"
+    CMAKE_ARGS
+        "-DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}"
+        "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
+        "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}"
+        "-DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>"
+        "-DCMAKE_INSTALL_LIBDIR=lib"
+        "-DCMAKE_C_BYTE_ORDER=LITTLE_ENDIAN"
+        "-DCMAKE_CXX_BYTE_ORDER=LITTLE_ENDIAN"
+        "-DBUILD_SHARED_LIBS=OFF"
+        "-DBUILD_PROGRAMS=OFF"
+        "-DBUILD_EXAMPLES=OFF"
+        "-DBUILD_TESTING=OFF"
+        "-DBUILD_REGTEST=OFF"
+        "-DENABLE_EXTERNAL_LIBS=OFF"
+        "-DENABLE_MPEG=OFF"
+        "-DINSTALL_PKGCONFIG_MODULE=OFF"
+        "-DINSTALL_MANPAGES=OFF"
+        "-DENABLE_CPACK=OFF"
+        "-DENABLE_PACKAGE_CONFIG=OFF"
+    BUILD_BYPRODUCTS "${CSOUND_WASM_SNDFILE_ARCHIVE}"
 )
 
-FetchContent_MakeAvailable(libsndfile)
-
-if(TARGET sndfile)
-    set(CSOUND_WASM_SNDFILE_TARGET sndfile)
-elseif(TARGET SndFile::sndfile)
-    set(CSOUND_WASM_SNDFILE_TARGET SndFile::sndfile)
-else()
-    message(FATAL_ERROR "libsndfile FetchContent succeeded, but no sndfile target was created")
+# The IMPORTED target's include directory must exist at configure time, and the
+# configure-time link probes need a valid archive to link against before the
+# real libsndfile.a exists. Create the include dir and an empty (but valid)
+# placeholder archive; the real ExternalProject build overwrites the archive.
+file(MAKE_DIRECTORY "${CSOUND_WASM_SNDFILE_INCLUDE_DIR}")
+file(MAKE_DIRECTORY "${CSOUND_WASM_SNDFILE_INSTALL}/lib")
+if(NOT EXISTS "${CSOUND_WASM_SNDFILE_ARCHIVE}")
+    execute_process(COMMAND "${CMAKE_AR}" qc "${CSOUND_WASM_SNDFILE_ARCHIVE}")
 endif()
 
-set(SNDFILE_H_PATH
-    "${libsndfile_SOURCE_DIR}/include"
-    CACHE PATH "sndfile.h directory" FORCE
+# Real IMPORTED target: forwards cleanly into Csound's try_compile probes and is
+# linked by the final wasm executables. Build ordering against the real archive
+# is enforced with add_dependencies(... libsndfile_external) further below.
+add_library(SndFile::sndfile STATIC IMPORTED GLOBAL)
+set_target_properties(SndFile::sndfile PROPERTIES
+    IMPORTED_LOCATION "${CSOUND_WASM_SNDFILE_ARCHIVE}"
+    INTERFACE_INCLUDE_DIRECTORIES "${CSOUND_WASM_SNDFILE_INCLUDE_DIR}"
 )
+set(CSOUND_WASM_SNDFILE_TARGET SndFile::sndfile)
 
-# Csound's CMake may expect either SNDFILE_LIBRARY or LIBSNDFILE_LIBRARY.
-# Use the target name first; if upstream Csound later requires a file path,
-# this can be changed in one place.
-set(SNDFILE_LIBRARY
-    ${CSOUND_WASM_SNDFILE_TARGET}
-    CACHE STRING "libsndfile CMake target" FORCE
-)
-
-set(LIBSNDFILE_LIBRARY
-    ${CSOUND_WASM_SNDFILE_TARGET}
-    CACHE STRING "libsndfile CMake target" FORCE
-)
-
+# Variables consumed by the (unmodified) Csound submodule and by the shim
+# FindSndFile module on CMAKE_MODULE_PATH (keeps USE_LIBSNDFILE enabled).
+set(SNDFILE_H_PATH      "${CSOUND_WASM_SNDFILE_INCLUDE_DIR}" CACHE PATH     "sndfile.h directory" FORCE)
+set(SndFile_INCLUDE_DIR "${CSOUND_WASM_SNDFILE_INCLUDE_DIR}" CACHE PATH     "libsndfile include directory" FORCE)
+set(SndFile_LIBRARY     "${CSOUND_WASM_SNDFILE_ARCHIVE}"     CACHE FILEPATH "libsndfile archive" FORCE)
+set(SNDFILE_LIBRARY     "${CSOUND_WASM_SNDFILE_ARCHIVE}"     CACHE FILEPATH "libsndfile archive" FORCE)
+set(LIBSNDFILE_LIBRARY  "${CSOUND_WASM_SNDFILE_ARCHIVE}"     CACHE FILEPATH "libsndfile archive" FORCE)
 set(SndFile_FOUND TRUE CACHE BOOL "libsndfile found" FORCE)
 set(USE_LIBSNDFILE ON CACHE BOOL "Use libsndfile" FORCE)
-
-# The Csound submodule (dependencies/csound, never modified) calls
-# `find_package(SndFile MODULE)`. With no Find module for the FetchContent-built
-# libsndfile, that search fails, `check_deps` flips USE_LIBSNDFILE off, and
-# libcsound is compiled with no soundfile I/O: the runtime banner then prints
-# "not using libsndfile" and `fout` / `-o file.wav` fail to open files. Expose
-# the in-tree libsndfile as the conventional SndFile::sndfile target, publish
-# the SndFile_* variables that Find module reports, and prepend a shim Find
-# module so the unmodified submodule resolves libsndfile from this build tree.
-if(NOT TARGET SndFile::sndfile)
-    add_library(SndFile::sndfile ALIAS ${CSOUND_WASM_SNDFILE_TARGET})
-endif()
-set(SndFile_INCLUDE_DIR "${SNDFILE_H_PATH}" CACHE PATH "libsndfile include directory" FORCE)
-set(SndFile_LIBRARY "${CSOUND_WASM_SNDFILE_TARGET}" CACHE STRING "libsndfile link target" FORCE)
 list(PREPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
+# Csound's CMake defines many compiled targets (the core library plus numerous
+# per-opcode-group / plugin libraries such as ipmidi, deprecated, ...), and many
+# of them include Csound's soundfile.h -> <sndfile.h>. Every one must wait for
+# libsndfile_external to install the header, or a parallel clean build races and
+# fails with "sndfile.h file not found". Enumerate all buildsystem targets in a
+# directory tree (recursing into subdirectories) and make each depend on the
+# ExternalProject, rather than hand-listing Csound's internal target names.
+function(csound_wasm_depend_on_sndfile dir)
+    get_property(_subdirs DIRECTORY "${dir}" PROPERTY SUBDIRECTORIES)
+    foreach(_sub IN LISTS _subdirs)
+        csound_wasm_depend_on_sndfile("${_sub}")
+    endforeach()
+    get_property(_targets DIRECTORY "${dir}" PROPERTY BUILDSYSTEM_TARGETS)
+    foreach(_tgt IN LISTS _targets)
+        get_target_property(_type "${_tgt}" TYPE)
+        if(NOT _type STREQUAL "INTERFACE_LIBRARY")
+            add_dependencies("${_tgt}" libsndfile_external)
+        endif()
+    endforeach()
+endfunction()
 
 # -----------------------------------------------------------------------------
 # Csound configuration.
@@ -168,7 +205,7 @@ include_directories(
     "${CMAKE_SOURCE_DIR}/dependencies/csound/H"
     "${CMAKE_SOURCE_DIR}/dependencies/csound-ac"
     "${CMAKE_SOURCE_DIR}/dependencies/csound-ac/CsoundAC"
-    "${libsndfile_SOURCE_DIR}/include"
+    "${CSOUND_WASM_SNDFILE_INCLUDE_DIR}"
 )
 # On Linux, Boost_INCLUDE_DIR is /usr/include. Adding that as a global -I pulls
 # glibc stdint.h/limits.h before emscripten's sysroot (bits/libc-header-start.h).
@@ -223,9 +260,12 @@ else()
     message(FATAL_ERROR "Expected csound or csound-static target from dependencies/csound")
 endif()
 
-if(TARGET csound-static)
-    add_dependencies(csound-static ${CSOUND_WASM_SNDFILE_TARGET})
-endif()
+# Build the real libsndfile (headers + archive) before anything under Csound or
+# CsoundAC that compiles against <sndfile.h>, and before the IMPORTED
+# SndFile::sndfile archive is linked. Covers every Csound sub-target (core lib
+# plus per-opcode-group libraries) and csoundac-static.
+csound_wasm_depend_on_sndfile("${CMAKE_SOURCE_DIR}/dependencies/csound")
+csound_wasm_depend_on_sndfile("${CMAKE_SOURCE_DIR}/CsoundAC")
 if(TARGET csoundac-static)
     target_compile_options(csoundac-static PRIVATE -O1)
 endif()
@@ -310,7 +350,7 @@ target_include_directories(CsoundAudioProcessor PRIVATE
     "${CMAKE_SOURCE_DIR}/dependencies/csound/include"
     "${CMAKE_SOURCE_DIR}/dependencies/csound/H"
     "${CMAKE_SOURCE_DIR}/dependencies/csound/interfaces"
-    "${libsndfile_SOURCE_DIR}/include"
+    "${CSOUND_WASM_SNDFILE_INCLUDE_DIR}"
     "${Eigen_INCLUDE_DIR}"
 )
 
@@ -318,6 +358,7 @@ target_link_libraries(CsoundAudioProcessor PRIVATE
     ${CSOUND_WASM_CSOUND_TARGET}
     ${CSOUND_WASM_SNDFILE_TARGET}
 )
+add_dependencies(CsoundAudioProcessor libsndfile_external)
 
 target_link_options(CsoundAudioProcessor PRIVATE
     --bind
@@ -357,7 +398,7 @@ target_include_directories(CsoundACWasm PRIVATE
     "${CMAKE_SOURCE_DIR}"
     "${CMAKE_SOURCE_DIR}/dependencies"
     "${CMAKE_SOURCE_DIR}/dependencies/csound-ac"
-    "${libsndfile_SOURCE_DIR}/include"
+    "${CSOUND_WASM_SNDFILE_INCLUDE_DIR}"
     "${Eigen_INCLUDE_DIR}"
     "${Boost_INCLUDE_DIR}"
 )
@@ -367,6 +408,7 @@ target_link_libraries(CsoundACWasm PRIVATE
     ${CSOUND_WASM_CSOUND_TARGET}
     ${CSOUND_WASM_SNDFILE_TARGET}
 )
+add_dependencies(CsoundACWasm libsndfile_external)
 
 target_link_options(CsoundACWasm PRIVATE
     --bind
