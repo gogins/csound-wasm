@@ -112,6 +112,21 @@ set(LIBSNDFILE_LIBRARY
 set(SndFile_FOUND TRUE CACHE BOOL "libsndfile found" FORCE)
 set(USE_LIBSNDFILE ON CACHE BOOL "Use libsndfile" FORCE)
 
+# The Csound submodule (dependencies/csound, never modified) calls
+# `find_package(SndFile MODULE)`. With no Find module for the FetchContent-built
+# libsndfile, that search fails, `check_deps` flips USE_LIBSNDFILE off, and
+# libcsound is compiled with no soundfile I/O: the runtime banner then prints
+# "not using libsndfile" and `fout` / `-o file.wav` fail to open files. Expose
+# the in-tree libsndfile as the conventional SndFile::sndfile target, publish
+# the SndFile_* variables that Find module reports, and prepend a shim Find
+# module so the unmodified submodule resolves libsndfile from this build tree.
+if(NOT TARGET SndFile::sndfile)
+    add_library(SndFile::sndfile ALIAS ${CSOUND_WASM_SNDFILE_TARGET})
+endif()
+set(SndFile_INCLUDE_DIR "${SNDFILE_H_PATH}" CACHE PATH "libsndfile include directory" FORCE)
+set(SndFile_LIBRARY "${CSOUND_WASM_SNDFILE_TARGET}" CACHE STRING "libsndfile link target" FORCE)
+list(PREPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/Modules")
+
 # -----------------------------------------------------------------------------
 # Csound configuration.
 # -----------------------------------------------------------------------------
