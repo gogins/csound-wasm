@@ -35,6 +35,7 @@
 #endif
 #include "float-version.h"
 #include <CsoundAC/csound_threaded.hpp>
+#include <cstdint>
 #include <cstdio>
 #include <deque>
 #include <emscripten/bind.h>
@@ -48,6 +49,8 @@
 
 extern "C" {
     int init_static_modules(CSOUND *csound);
+    const char *csoundGetOutputName(CSOUND *csound);
+    const char *csoundGetInputName(CSOUND *csound);
     /**
      * Csound 7 removed this from the public headers but it remains in
      * Top/threadsafe.c. csound-wasm polyfills Csound::KillInstance via it.
@@ -139,23 +142,11 @@ public:
         return GetEnv(name.c_str());
     }
     virtual std::string GetInputName_() {
-        const char *value = nullptr;    
-#if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7      
-     auto params = GetParams();
-        if (params == nullptr) {
-            return "";
-        }
-        value = params->infilename;
+        const char *value = csoundGetInputName(csound);
         if (value == nullptr) {
             return "";
         }
-#else
-        value = GetInputName();
-        if (value == nullptr) {
-            return "";
-        }
-#endif
-        return value;;
+        return value;
     }
     virtual int32_t GetKsmps()
     {
@@ -181,23 +172,18 @@ public:
         return Csound::GetCurrentTimeSamples();
     }
     virtual std::string GetOutputName_() {
-        const char *value = nullptr;    
-#if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7      
-     auto params = GetParams();
-        if (params == nullptr) {
-            return "";
-        }
-        value = params->outfilename;
+        const char *value = csoundGetOutputName(csound);
         if (value == nullptr) {
             return "";
         }
-#else
-        value = GetOutputName();
-        if (value == nullptr) {
-            return "";
+        return value;
+    }
+    virtual int GetSpoutByteOffset() {
+        const MYFLT *spout = Csound::GetSpout();
+        if (spout == nullptr) {
+            return 0;
         }
-#endif
-        return value;;
+        return (int)(intptr_t)spout;
     }
     virtual MYFLT GetScoreOffsetSeconds() {
         return Csound::GetScoreOffsetSeconds();
@@ -501,6 +487,7 @@ EMSCRIPTEN_BINDINGS(csound_web_audio) {
         .function("getSr", &CsoundEmbind::GetSr)
         .function("GetSpin", &CsoundEmbind::GetSpinView)
         .function("GetSpout", &CsoundEmbind::GetSpoutView)
+        .function("GetSpoutByteOffset", &CsoundEmbind::GetSpoutByteOffset)
         .function("GetKsmps", &CsoundEmbind::GetKsmps)
         .function("getKsmps", &CsoundEmbind::GetKsmps)
         .function("GetNchnls", &CsoundEmbind::GetNchnls)
