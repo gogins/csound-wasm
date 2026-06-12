@@ -322,16 +322,11 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
         this.csound.Message("CsoundAudioProcessor started.\n");
     }
     readSpoutBuffer_(frameCount, channelCount) {
-        if (typeof updateMemoryViews === "function") {
-            updateMemoryViews();
-        }
-        let spoutView = this.csound.GetSpout();
-        if (spoutView && spoutView.byteOffset !== undefined && typeof HEAPF32 !== "undefined") {
-            let index = spoutView.byteOffset >> 2;
-            let count = frameCount * channelCount;
-            return HEAPF32.subarray(index, index + count);
-        }
-        return spoutView;
+        // GetSpout() returns a fresh typed_memory_view of Csound's spout
+        // (MYFLT, which is double in this build) into the current wasm heap,
+        // so it is valid even if the heap grew during PerformKsmps. Do not
+        // reinterpret it through HEAPF32, which would read doubles as floats.
+        return this.csound.GetSpout();
     }
     process(inputs, outputs, parameters) {
         try {
