@@ -236,8 +236,9 @@ public:
         if (!insname_.empty()) {
             insname = const_cast<char *>(insname_.c_str());
         }
-        // async=1: enqueue for the performance thread (CsoundThreaded / wasm).
-        return csoundKillInstance(csound, p1, insname, mode, release ? 1 : 0, 1);
+        // async=0: wasm runs Csound on the AudioWorklet thread; a queued
+        // KILL_INSTANCE stores a raw INSDS* that can be stale before drain.
+        return csoundKillInstance(csound, p1, insname, mode, release ? 1 : 0, 0);
     }
     virtual void Message(const std::string &message) {
         Csound::Message(message.c_str());
