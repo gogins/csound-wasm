@@ -48,6 +48,8 @@
 #include <string>
 
 extern "C" {
+    void csoundSetHostImplementedAudioIO(CSOUND *csound, int32_t state, int32_t bufSize);
+    void set_io_backend(CSOUND *csound);
     int init_static_modules(CSOUND *csound);
     const char *csoundGetOutputName(CSOUND *csound);
     const char *csoundGetInputName(CSOUND *csound);
@@ -285,8 +287,14 @@ public:
     virtual void Stop() {
         CsoundThreaded::Stop();
     }
-    virtual void SetHostImplementedAudioIO(int state) {
+    virtual void SetHostImplementedAudioIO(int state, int bufSize = 0) {
+#if defined(CSOUND_VERSION_MAJOR) && CSOUND_VERSION_MAJOR >= 7
+        int32_t bs = (bufSize > 0) ? (int32_t)bufSize : ((state != 0) ? 128 : 0);
+        csoundSetHostImplementedAudioIO(csound, (int32_t)state, bs);
+        set_io_backend(csound);
+#else
         CsoundThreaded::SetHostImplementedAudioIO(state);
+#endif
     }
     virtual MYFLT TableGet(int table, int index) {
         return CsoundThreaded::TableGet(table, index);
