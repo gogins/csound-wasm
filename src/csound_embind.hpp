@@ -224,9 +224,9 @@ public:
         if (!insname_.empty()) {
             insname = const_cast<char *>(insname_.c_str());
         }
-        // async=0: wasm runs Csound on the AudioWorklet thread; a queued
-        // KILL_INSTANCE stores a raw INSDS* that can be stale before drain.
-        return csoundKillInstance(csound, p1, insname, mode, release ? 1 : 0, 0);
+        // async=1: drain at k-cycle start (message_dequeue) with fresh instance
+        // lookup; avoids stale INSDS* and avoids sync kill mid-buffer.
+        return csoundKillInstance(csound, p1, insname, mode, release ? 1 : 0, 1);
     }
     virtual void Message(const std::string &message) {
         Csound::Message(message.c_str());

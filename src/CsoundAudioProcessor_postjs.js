@@ -271,7 +271,7 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
             text = csdTextOrOptions.join(" ");
         }
         if (this.wantsRealtimeAudioIO_(text)) {
-            this.csound.SetHostImplementedAudioIO(1, 128);
+            this.csound.SetHostImplementedAudioIO(1);
         } else {
             this.csound.SetHostImplementedAudioIO(0, 0);
         }
@@ -297,17 +297,12 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
         let result = 0;
         this.input_name = this.csound.GetInputName();
         this.output_name = this.csound.GetOutputName();
-        this.csound.Message("CsoundAudioProcessor output: " + this.output_name + " input: " + this.input_name + "\n");
-        let ksmps = this.csound.GetKsmps();
-        if (ksmps <= 0) {
-            ksmps = 128;
-        }
-        if (this.output_name.includes("dac") || this.input_name.includes("adc")) {
+        if (this.output_name.startsWith("dac") || this.input_name.startsWith("adc")) {
             this.is_realtime = true;                        
-            this.csound.SetHostImplementedAudioIO(1, ksmps);
+            this.csound.SetHostImplementedAudioIO(1, 0);
             this.csound.InitializeHostMidi();
             result = this.csound.Start();
-            if (this.input_name.includes("adc")) {
+            if (this.input_name.startsWith("adc")) {
                 this.has_audio_input = true;  
                 this.csound.Message("CsoundAudioProcessor uses audio input:          " + this.input_name + "\n");
             } else {
@@ -321,33 +316,22 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
         }
         this.csound.Message("CsoundAudioProcessor started.\n");
     }
-    readSpoutBuffer_(frameCount, channelCount) {
-        // GetSpout() returns a fresh typed_memory_view of Csound's spout
-        // (MYFLT, which is double in this build) into the current wasm heap,
-        // so it is valid even if the heap grew during PerformKsmps. Do not
-        // reinterpret it through HEAPF32, which would read doubles as floats.
-        return this.csound.GetSpout();
-    }
     process(inputs, outputs, parameters) {
         try {
             if (this.is_playing == true) {
                 // If rendering is not real-time, then all audio input and output 
                 // is configured and performed within Csound.
                 if (this.is_realtime == false) {
-                    let result = 0;
-                    while (result == 0) {
-                        result = this.csound.PerformKsmps();
-                        if (result != 0) {
-                            this.is_playing = false;
-                            this.csound.Stop();
-                            this.csound.Reset();
-                            this.csound.Message("CsoundAudioProcessor finished non-real-time render.\n");
-                            this.port.postMessage(["OfflineRenderFinished"]);
-                            return true;
-                        }
+                    let result = this.csound.PerformKsmps();
+                    if (result != 0) {
+                        this.is_playing = false;
+                        this.csound.Stop();
+                        this.csound.Reset();
+                        this.csound.Message("CsoundAudioProcessor finished non-real-time render.\n");
+                        this.port.postMessage(["OfflineRenderFinished"]);
                     }
                     return true;
-                } else {
+                }
                 // Real-time: all audio input and output are configured and 
                 // performed in the WebAudio processor, here. Csound adapts 
                 // to the WebAudio input and output configuration, except that 
@@ -365,6 +349,7 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
                 let csound_input_buffer = this.csound.GetSpin();            
                 let csound_input_channel_n = this.csound.GetNchnlsInput();
                 let wa_output_buffer = outputs[0];
+                let csound_output_buffer = this.csound.GetSpout();
                 let csound_output_channel_n = this.csound.GetNchnls();
                 let wa_output_channel_n = wa_output_buffer.length;
                 let wa_output_channel_0 = wa_output_buffer[0];
@@ -401,7 +386,7 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
                                 csound_input_buffer[(frame_i * csound_input_channel_n) + input_channel_i] = (wa_input_channel_buffer[frame_i] * zero_dbfs);
                             }
                         }
-                        for ( ; input_channel_i < csound_input_channel_n; input_channel_i++) {
+                        for ( ; input_channel_i < csound.input_channel_n; input_channel_i++) {
                             for (let frame_i = 0; frame_i < wa_frame_n; frame_i++) {
                                 csound_input_buffer[(frame_i * csound_input_channel_n) + input_channel_i] = 0.;
                             }
@@ -411,7 +396,7 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
                         for (input_channel_i = 0; input_channel_i < csound_input_channel_n; input_channel_i++) {
                             wa_input_channel_buffer = wa_input_buffer[input_channel_i];
                             for (let frame_i = 0; frame_i < wa_frame_n; frame_i++) {
-                                csound_input_buffer[(frame_i * csound_input_channel_n) + input_channel_i] = (wa_input_channel_buffer[frame_i] * zero_dbfs);
+                                csound_input_buffer[(frame_i * input_channel_i) + input_channel_i] = (wa_input_channel_buffer[frame_i] * zero_dbfs);
                             }
                         }
                     }
@@ -424,7 +409,6 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
                     this.csound.Message("Csound has finished playing.\n");
                     this.is_playing = false;
                 }
-                let csound_output_buffer = this.readSpoutBuffer_(wa_frame_n, csound_output_channel_n);
                 let output_channel_i;
                 // If the WebAudio output channel count is greater than Csound's 
                 // spout channel count, then the extra WebAudio output channels 
@@ -447,15 +431,9 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
                     for (output_channel_i = 0; output_channel_i < wa_output_channel_n; output_channel_i++) {
                         wa_output_channel_buffer = wa_output_buffer[output_channel_i];
                         for (let frame_i = 0; frame_i < wa_frame_n; frame_i++) {
-                            wa_output_channel_buffer[frame_i] = (csound_output_buffer[(frame_i * csound_output_channel_n) + output_channel_i] / zero_dbfs);
+                            wa_output_channel_buffer[frame_i] = (csound_output_buffer[(frame_i * wa_output_channel_n) + output_channel_i] / zero_dbfs);
                         }
                     }
-                }
-                }
-            } else {
-                let wa_output_buffer = outputs[0];
-                for (let channel_i = 0; channel_i < wa_output_buffer.length; channel_i++) {
-                    wa_output_buffer[channel_i].fill(0);
                 }
             }
             return true;
@@ -463,7 +441,7 @@ class CsoundAudioProcessor extends AudioWorkletProcessor {
             console.log(e);
         }
     }
-};
+ };
 
 registerProcessor("csound-audio-processor", CsoundAudioProcessor);
 console.log("Registered 'csound-audio-processor'.");
