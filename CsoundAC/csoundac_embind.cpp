@@ -932,6 +932,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("relative_tonicizations", &csound::Scale::relative_tonicizations)
         .function("relative_tonicizations_for_scale_types", &csound::Scale::relative_tonicizations_for_scale_types)
         .function("secondary", &csound::Scale::secondary)
+        .function("secondary_to_degree", &csound::Scale::secondary_to_degree)
         .function("semitones_for_degree", &csound::Scale::semitones_for_degree)
         .function("tonic", &csound::Scale::tonic)
         .function("tonicizations", &csound::Scale::tonicizations)
