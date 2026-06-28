@@ -1002,17 +1002,38 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("size", emscripten::select_overload<size_t() const>(&csound::Score::size))
     ;
     // FINISHED
+    emscripten::enum_<csound::HarmonyConformMode>("HarmonyConformMode")
+        .value("Default", csound::HarmonyConformMode::Default)
+        .value("Hc", csound::HarmonyConformMode::Hc)
+        .value("Hcv", csound::HarmonyConformMode::Hcv)
+        .value("Hcs", csound::HarmonyConformMode::Hcs)
+        .value("Hd", csound::HarmonyConformMode::Hd)
+        .value("Hds", csound::HarmonyConformMode::Hds)
+    ;
+    emscripten::value_object<csound::HarmonyEntry>("HarmonyEntry")
+        .field("chord", &csound::HarmonyEntry::chord)
+        .field("mode", &csound::HarmonyEntry::mode)
+        .field("scale", &csound::HarmonyEntry::scale)
+        .field("scale_degree", &csound::HarmonyEntry::scale_degree)
+        .field("voices", &csound::HarmonyEntry::voices)
+        .field("voice_leading_range", &csound::HarmonyEntry::voice_leading_range)
+    ;
     emscripten::class_<csound::ChordScore, emscripten::base<csound::Score> >("ChordScore")
         .constructor<>()
         .function("conformToChords", &csound::ChordScore::conformToChords)
         .function("getChord", &csound::ChordScore::getChord, emscripten::allow_raw_pointers())
+        .function("getHarmony", &csound::ChordScore::getHarmony, emscripten::allow_raw_pointers())
+        .function("gatherSoundingChord", &csound::ChordScore::gatherSoundingChord)
         // NOT SUPPORTED.
         // .function("getScale", &csound::ChordScore::getScale, emscripten::allow_raw_pointers())
-        .function("insertChord", &csound::ChordScore::insertChord)
+        .function("insertChord", emscripten::select_overload<void(double, const csound::Chord)>(&csound::ChordScore::insertChord))
+        .function("insertChordWithMode",
+                  emscripten::select_overload<void(double, const csound::Chord &, csound::HarmonyConformMode, int, double)>(&csound::ChordScore::insertChord))
+        .function("insertFunctionalHarmony", &csound::ChordScore::insertFunctionalHarmony)
         .function("getTimelineDuration", &csound::ChordScore::getDuration)
         .function("setTimelineDuration", &csound::ChordScore::setDuration)
         .function("setScale", &csound::ChordScore::setScale, emscripten::allow_raw_pointers())
-        .property("chords_for_times", &csound::ChordScore::chords_for_times)
+        .property("harmonies_for_times", &csound::ChordScore::harmonies_for_times)
     ;
     // FINISHED
     emscripten::class_<csound::ScoreModel, emscripten::base<csound::Composition> >("ScoreModel")
