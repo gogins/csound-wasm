@@ -1023,7 +1023,10 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("conformToChords", &csound::ChordScore::conformToChords)
         .function("getChord", &csound::ChordScore::getChord, emscripten::allow_raw_pointers())
         .function("getHarmony", &csound::ChordScore::getHarmony, emscripten::allow_raw_pointers())
-        .function("gatherSoundingChord", &csound::ChordScore::gatherSoundingChord)
+        .function("gatherSoundingChord",
+                  emscripten::select_overload<csound::Chord(const csound::Score &, double, double)>(&csound::ChordScore::gatherSoundingChord))
+        .function("gatherSoundingChord",
+                  emscripten::select_overload<csound::Chord(const csound::Score &, double, double, int)>(&csound::ChordScore::gatherSoundingChord))
         // NOT SUPPORTED.
         // .function("getScale", &csound::ChordScore::getScale, emscripten::allow_raw_pointers())
         .function("insertChord", emscripten::select_overload<void(double, const csound::Chord)>(&csound::ChordScore::insertChord))
