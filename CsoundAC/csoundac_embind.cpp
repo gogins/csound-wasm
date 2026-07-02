@@ -1035,6 +1035,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .function("insertFunctionalHarmony", &csound::ChordScore::insertFunctionalHarmony)
         .function("getTimelineDuration", &csound::ChordScore::getDuration)
         .function("setTimelineDuration", &csound::ChordScore::setDuration)
+        .function("setDurationFromZero", &csound::ChordScore::setDurationFromZero)
         .function("setScale", &csound::ChordScore::setScale, emscripten::allow_raw_pointers())
         .property("harmonies_for_times", &csound::ChordScore::harmonies_for_times)
     ;
