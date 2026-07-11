@@ -505,7 +505,7 @@ EMSCRIPTEN_BINDINGS(csoundac) {
         .property("countV", &csound::PITV::getCountV)
         .property("g", &csound::PITV::getG)
         .property("N", &csound::PITV::getN)
-        .property("range", &csound::PITV::getRange)
+        .property("range", &csound::PITV::range)
     ;
     // FINISHED
     emscripten::class_<csound::Composition>("Composition")
